@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { LinkForm } from "@/components/link-form";
+import { HeroSection } from "@/components/hero-section";
+import { FeaturesSection } from "@/components/features-section";
 import { LinksDashboard } from "@/components/links-dashboard";
 import { AuthForm } from "@/components/auth/auth-form";
 import { UserProfile } from "@/components/auth/user-profile";
@@ -17,32 +18,40 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-7xl">
-      <div className="mb-8 flex justify-between items-start">
-        <div>
-          <h1 className="text-4xl font-bold mb-2">URL Shortener</h1>
-          <p className="text-muted-foreground">
-            Create and manage your shortened links
-          </p>
-        </div>
-        
-        {!isLoading && (
-          <div className="ml-auto">
-            {user ? (
-              <UserProfile />
-            ) : (
-              <AuthForm />
+    <div className="min-h-screen">
+      <HeroSection onLinkCreated={handleLinkCreated} />
+      <FeaturesSection />
+      
+      {/* Dashboard Section */}
+      <section id="dashboard" className="py-20 md:py-32 bg-slate-50 dark:bg-slate-800">
+        <div className="container mx-auto px-6 md:px-8">
+          <div className="flex justify-between items-center mb-16">
+            <div className="text-center space-y-6 flex-1">
+              <h2 className="text-4xl md:text-5xl font-bold">
+                <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-slate-100 dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+                  Your Link Dashboard
+                </span>
+              </h2>
+              <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
+                Manage all your shortened links in one beautiful interface. Track performance, 
+                analyze clicks, and optimize your link strategy.
+              </p>
+            </div>
+            
+            {!isLoading && (
+              <div className="ml-8">
+                {user ? (
+                  <UserProfile />
+                ) : (
+                  <AuthForm />
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-3">
-        <div className="lg:col-span-2 space-y-8">
-          <LinkForm onSuccess={handleLinkCreated} />
+          
           <LinksDashboard refresh={refreshCount} />
         </div>
-      </div>
+      </section>
     </div>
   );
 }

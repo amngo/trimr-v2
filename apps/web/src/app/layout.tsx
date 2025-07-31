@@ -1,21 +1,27 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import { AuthProvider } from "@/contexts/auth-context";
-import "./globals.css";
+import type { Metadata } from 'next';
+import { Figtree, Geist, Geist_Mono } from 'next/font/google';
+import { AuthProvider } from '@/contexts/auth-context';
+import './globals.css';
+
+const figtree = Figtree({
+  variable: '--font-figtree',
+  subsets: ['latin'],
+  display: 'swap',
+});
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "URL Shortener",
-  description: "Create and manage short links",
+  title: 'URL Shortener',
+  description: 'Create and manage short links',
 };
 
 export default function RootLayout({
@@ -26,11 +32,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${figtree.variable} antialiased dark`}
       >
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );
