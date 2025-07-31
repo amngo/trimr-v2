@@ -21,13 +21,25 @@ type Link struct {
 }
 
 type CreateLinkRequest struct {
-	URL  string  `json:"url" binding:"required,url"`
-	Name *string `json:"name"`
+	URL        string     `json:"url" binding:"required,url"`
+	Name       *string    `json:"name"`
+	ExpiresAt  *time.Time `json:"expiresAt,omitempty"`
+	ActiveFrom *time.Time `json:"activeFrom,omitempty"`
+	Password   *string    `json:"password,omitempty"`
 }
 
 type CreateLinkResponse struct {
 	ShortURL string `json:"shortUrl"`
 	Slug     string `json:"slug"`
+}
+
+type AccessLinkRequest struct {
+	Password *string `json:"password,omitempty"`
+}
+
+type LinkStats struct {
+	TotalClicks  int `json:"totalClicks" db:"total_clicks"`
+	UniqueClicks int `json:"uniqueClicks" db:"unique_clicks"`
 }
 
 type ClickEvent struct {

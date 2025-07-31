@@ -8,12 +8,20 @@ export interface Link {
   clicks: number;
   createdAt: string;
   lastUpdated: string;
+  expiresAt?: string;
+  activeFrom?: string;
   shortUrl: string;
+  uniqueClicks: number;
+  isActive: boolean;
+  isExpired: boolean;
 }
 
 export interface CreateLinkRequest {
   url: string;
   name?: string;
+  expiresAt?: string;
+  activeFrom?: string;
+  password?: string;
 }
 
 export interface CreateLinkResponse {
@@ -151,6 +159,34 @@ export async function getLinks(): Promise<Link[]> {
 
   if (!response.ok) {
     throw new Error('Failed to fetch links');
+  }
+
+  return response.json();
+}
+
+export interface AccessLinkRequest {
+  password?: string;
+}
+
+export interface AccessLinkResponse {
+  slug: string;
+  passwordRequired: boolean;
+  passwordValid?: boolean;
+  originalUrl?: string;
+}
+
+export async function checkLinkAccess(slug: string, password?: string): Promise<AccessLinkResponse> {
+  const response = await fetch(`${API_BASE_URL}/links/${slug}/access`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ password }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to check link access');
   }
 
   return response.json();

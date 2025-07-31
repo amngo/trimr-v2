@@ -1,19 +1,31 @@
-'use client';
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { createLink } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Link2, Copy, CheckCircle, AlertCircle } from 'lucide-react';
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { createLink } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Calendar, Clock, Lock, Link2, Copy, CheckCircle, AlertCircle, Plus, Minus } from "lucide-react";
 
 export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
-  const [url, setUrl] = useState('');
-  const [name, setName] = useState('');
+  const [url, setUrl] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  
+  // Advanced options
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [password, setPassword] = useState("");
+  const [hasPassword, setHasPassword] = useState(false);
+  const [expiresAt, setExpiresAt] = useState("");
+  const [hasExpiry, setHasExpiry] = useState(false);
+  const [activeFrom, setActiveFrom] = useState("");
+  const [hasScheduled, setHasScheduled] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,20 +35,39 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
     setCopied(false);
 
     try {
-      const response = await createLink({
+      const requestData: any = {
         url,
         name: name || undefined,
-      });
+      };
 
+      // Add advanced options if enabled
+      if (hasPassword && password) {
+        requestData.password = password;
+      }
+      if (hasExpiry && expiresAt) {
+        requestData.expiresAt = new Date(expiresAt).toISOString();
+      }
+      if (hasScheduled && activeFrom) {
+        requestData.activeFrom = new Date(activeFrom).toISOString();
+      }
+
+      const response = await createLink(requestData);
+      
       setShortUrl(response.shortUrl);
-      setUrl('');
-      setName('');
-
+      setUrl("");
+      setName("");
+      setPassword("");
+      setExpiresAt("");
+      setActiveFrom("");
+      setHasPassword(false);
+      setHasExpiry(false);
+      setHasScheduled(false);
+      
       if (onSuccess) {
         onSuccess();
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create link');
+      setError(err instanceof Error ? err.message : "Failed to create link");
     } finally {
       setLoading(false);
     }
@@ -50,10 +81,24 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
     }
   };
 
+  // Format datetime for input
+  const formatDateTimeLocal = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  const now = new Date();
+  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
+  const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div
+      <motion.div 
         className="text-center space-y-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -72,20 +117,18 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
         </p>
       </motion.div>
 
-      <motion.form
-        onSubmit={handleSubmit}
+      <motion.form 
+        onSubmit={handleSubmit} 
         className="space-y-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
       >
+        {/* Basic Fields */}
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label
-              htmlFor="url"
-              className="text-sm font-medium text-slate-700 dark:text-slate-300"
-            >
-              Your URL
+            <Label htmlFor="url" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Your URL *
             </Label>
             <motion.div
               whileFocus={{ scale: 1.02 }}
@@ -99,16 +142,13 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                 onChange={(e) => setUrl(e.target.value)}
                 required
                 disabled={loading}
-                className="h-12 px-4 bg-slate-50 border-slate-200 focus:ring-blue-500 focus:border-blue-500"
+                className="h-12 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-blue-500 focus:border-blue-500"
               />
             </motion.div>
           </div>
-
+          
           <div className="space-y-2">
-            <Label
-              htmlFor="name"
-              className="text-sm font-medium text-slate-700 dark:text-slate-300"
-            >
+            <Label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
               Custom Name (optional)
             </Label>
             <motion.div
@@ -122,12 +162,146 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loading}
-                className="h-12 px-4 bg-slate-50 border-slate-200 focus:ring-blue-500 focus:border-blue-500"
+                className="h-12 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-blue-500 focus:border-blue-500"
               />
             </motion.div>
           </div>
         </div>
 
+        {/* Advanced Options Toggle */}
+        <motion.div
+          className="border-t border-slate-200 dark:border-slate-700 pt-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <button
+            type="button"
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="flex items-center space-x-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+          >
+            {showAdvanced ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            <span>Advanced Options</span>
+          </button>
+        </motion.div>
+
+        {/* Advanced Options */}
+        {showAdvanced && (
+          <motion.div
+            className="space-y-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            {/* Password Protection */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="has-password"
+                  checked={hasPassword}
+                  onCheckedChange={setHasPassword}
+                />
+                <div className="flex items-center space-x-2">
+                  <Lock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  <Label htmlFor="has-password" className="text-sm font-medium">
+                    Password Protection
+                  </Label>
+                </div>
+              </div>
+              {hasPassword && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="ml-8"
+                >
+                  <Input
+                    type="password"
+                    placeholder="Enter password for link access"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={loading}
+                    className="h-10 bg-white dark:bg-slate-700"
+                  />
+                </motion.div>
+              )}
+            </div>
+
+            {/* Scheduled Activation */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="has-scheduled"
+                  checked={hasScheduled}
+                  onCheckedChange={setHasScheduled}
+                />
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  <Label htmlFor="has-scheduled" className="text-sm font-medium">
+                    Scheduled Activation
+                  </Label>
+                </div>
+              </div>
+              {hasScheduled && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="ml-8 space-y-2"
+                >
+                  <Label className="text-xs text-slate-600 dark:text-slate-400">
+                    Link becomes active at:
+                  </Label>
+                  <Input
+                    type="datetime-local"
+                    value={activeFrom}
+                    onChange={(e) => setActiveFrom(e.target.value)}
+                    min={formatDateTimeLocal(now)}
+                    disabled={loading}
+                    className="h-10 bg-white dark:bg-slate-700"
+                  />
+                </motion.div>
+              )}
+            </div>
+
+            {/* Expiry Date */}
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Switch
+                  id="has-expiry"
+                  checked={hasExpiry}
+                  onCheckedChange={setHasExpiry}
+                />
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400" />
+                  <Label htmlFor="has-expiry" className="text-sm font-medium">
+                    Expiry Date
+                  </Label>
+                </div>
+              </div>
+              {hasExpiry && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="ml-8 space-y-2"
+                >
+                  <Label className="text-xs text-slate-600 dark:text-slate-400">
+                    Link expires at:
+                  </Label>
+                  <Input
+                    type="datetime-local"
+                    value={expiresAt}
+                    onChange={(e) => setExpiresAt(e.target.value)}
+                    min={hasScheduled && activeFrom ? activeFrom : formatDateTimeLocal(now)}
+                    disabled={loading}
+                    className="h-10 bg-white dark:bg-slate-700"
+                  />
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* Error Message */}
         {error && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -139,6 +313,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
           </motion.div>
         )}
 
+        {/* Success Message */}
         {shortUrl && (
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -178,9 +353,13 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
           </motion.div>
         )}
 
-        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-          <Button
-            type="submit"
+        {/* Submit Button */}
+        <motion.div
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <Button 
+            type="submit" 
             className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={loading}
           >
@@ -189,7 +368,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                 <motion.div
                   className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                 />
                 <span>Creating your link...</span>
               </div>

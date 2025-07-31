@@ -22,6 +22,7 @@ func SetupRoutes(r *gin.Engine) {
 		// Link endpoints - using optional JWT auth for backward compatibility
 		api.POST("/links", middleware.OptionalJWTAuth(), handlers.CreateLink)
 		api.GET("/links", middleware.OptionalJWTAuth(), handlers.GetLinks)
+		api.POST("/links/:slug/access", handlers.CheckLinkAccess)
 	}
 
 	// Redirect route (at root level)
