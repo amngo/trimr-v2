@@ -10,12 +10,18 @@ import (
 func SetupRoutes(r *gin.Engine) {
 	// Apply CORS middleware
 	r.Use(middleware.CORS())
+	
 	// API routes
 	api := r.Group("/api")
 	{
-		// Link endpoints
-		api.POST("/links", handlers.CreateLink)
-		api.GET("/links", handlers.GetLinks)
+		// Authentication endpoints
+		api.POST("/auth/register", handlers.Register)
+		api.POST("/auth/login", handlers.Login)
+		api.GET("/auth/profile", middleware.JWTAuth(), handlers.GetProfile)
+
+		// Link endpoints - using optional JWT auth for backward compatibility
+		api.POST("/links", middleware.OptionalJWTAuth(), handlers.CreateLink)
+		api.GET("/links", middleware.OptionalJWTAuth(), handlers.GetLinks)
 	}
 
 	// Redirect route (at root level)

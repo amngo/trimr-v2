@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getLinks, Link } from "@/lib/api";
+import { useAuth } from "@/contexts/auth-context";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -19,6 +20,7 @@ export function LinksDashboard({ refresh }: { refresh?: number }) {
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const fetchLinks = async () => {
     try {
@@ -59,8 +61,12 @@ export function LinksDashboard({ refresh }: { refresh?: number }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Your Links</CardTitle>
-          <CardDescription>Manage your shortened links</CardDescription>
+          <CardTitle>{user ? "Your Links" : "Public Links"}</CardTitle>
+          <CardDescription>
+            {user 
+              ? "Manage your shortened links" 
+              : "Sign in to save and manage your links"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -77,8 +83,12 @@ export function LinksDashboard({ refresh }: { refresh?: number }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Your Links</CardTitle>
-          <CardDescription>Manage your shortened links</CardDescription>
+          <CardTitle>{user ? "Your Links" : "Public Links"}</CardTitle>
+          <CardDescription>
+            {user 
+              ? "Manage your shortened links" 
+              : "Sign in to save and manage your links"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <Alert variant="destructive">
@@ -93,8 +103,12 @@ export function LinksDashboard({ refresh }: { refresh?: number }) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Your Links</CardTitle>
-          <CardDescription>Manage your shortened links</CardDescription>
+          <CardTitle>{user ? "Your Links" : "Public Links"}</CardTitle>
+          <CardDescription>
+            {user 
+              ? "Manage your shortened links" 
+              : "Sign in to save and manage your links"}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="text-center py-8 text-muted-foreground">

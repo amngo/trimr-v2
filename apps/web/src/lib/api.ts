@@ -21,12 +21,117 @@ export interface CreateLinkResponse {
   slug: string;
 }
 
-export async function createLink(data: CreateLinkRequest): Promise<CreateLinkResponse> {
-  const response = await fetch(`${API_BASE_URL}/links`, {
+export interface User {
+  id: string;
+  email: string;
+  createdAt: string;
+}
+
+export interface RegisterRequest {
+  email: string;
+  password: string;
+}
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  token: string;
+  user: User;
+}
+
+// Token management
+export function getToken(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('auth_token');
+}
+
+export function setToken(token: string): void {
+  if (typeof window === 'undefined') return;
+  localStorage.setItem('auth_token', token);
+}
+
+export function removeToken(): void {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem('auth_token');
+}
+
+function getAuthHeaders(): HeadersInit {
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+  
+  const token = getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
+  return headers;
+}
+
+// Authentication functions
+export async function register(data: RegisterRequest): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to register');
+  }
+
+  const authResponse = await response.json();
+  setToken(authResponse.token);
+  return authResponse;
+}
+
+export async function login(data: LoginRequest): Promise<AuthResponse> {
+  const response = await fetch(`${API_BASE_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to login');
+  }
+
+  const authResponse = await response.json();
+  setToken(authResponse.token);
+  return authResponse;
+}
+
+export async function logout(): Promise<void> {
+  removeToken();
+}
+
+export async function getProfile(): Promise<User> {
+  const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+    method: 'GET',
+    headers: getAuthHeaders(),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch profile');
+  }
+
+  return response.json();
+}
+
+// Link functions
+export async function createLink(data: CreateLinkRequest): Promise<CreateLinkResponse> {
+  const response = await fetch(`${API_BASE_URL}/links`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
     body: JSON.stringify(data),
   });
 
@@ -41,9 +146,7 @@ export async function createLink(data: CreateLinkRequest): Promise<CreateLinkRes
 export async function getLinks(): Promise<Link[]> {
   const response = await fetch(`${API_BASE_URL}/links`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: getAuthHeaders(),
   });
 
   if (!response.ok) {

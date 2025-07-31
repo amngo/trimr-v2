@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 	"url-shortener-api/db"
+	"url-shortener-api/middleware"
 	"url-shortener-api/models"
 	"url-shortener-api/utils"
 
@@ -61,6 +62,9 @@ func CreateLink(c *gin.Context) {
 		}
 	}
 
+	// Get user ID from context (set by JWT middleware)
+	userID := middleware.GetUserID(c)
+	
 	// Create the link
 	link = models.Link{
 		ID:          uuid.New(),
@@ -70,14 +74,15 @@ func CreateLink(c *gin.Context) {
 		Clicks:      0,
 		CreatedAt:   time.Now(),
 		LastUpdated: time.Now(),
+		UserID:      userID,
 	}
 
 	query := `
-		INSERT INTO links (id, name, slug, original, clicks, created_at, last_updated)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO links (id, name, slug, original, clicks, created_at, last_updated, user_id)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
-	_, err := db.DB.Exec(query, link.ID, link.Name, link.Slug, link.Original, link.Clicks, link.CreatedAt, link.LastUpdated)
+	_, err := db.DB.Exec(query, link.ID, link.Name, link.Slug, link.Original, link.Clicks, link.CreatedAt, link.LastUpdated, link.UserID)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
 			c.JSON(http.StatusConflict, gin.H{"error": "Slug already exists"})
@@ -145,17 +150,36 @@ func RedirectLink(c *gin.Context) {
 	c.Redirect(http.StatusMovedPermanently, link.Original)
 }
 
-// GetLinks retrieves all links (for dashboard)
+// GetLinks retrieves user-specific links (for dashboard)
 func GetLinks(c *gin.Context) {
 	var links []models.Link
 
-	query := `
-		SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id
-		FROM links
-		ORDER BY created_at DESC
-	`
-
-	err := db.DB.Select(&links, query)
+	// Get user ID from context (set by JWT middleware)
+	userID := middleware.GetUserID(c)
+	
+	var query string
+	var err error
+	
+	if userID != nil {
+		// If authenticated, show only user's links
+		query = `
+			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id
+			FROM links
+			WHERE user_id = $1
+			ORDER BY created_at DESC
+		`
+		err = db.DB.Select(&links, query, *userID)
+	} else {
+		// If not authenticated, show only anonymous links (for backward compatibility)
+		query = `
+			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id
+			FROM links
+			WHERE user_id IS NULL
+			ORDER BY created_at DESC
+		`
+		err = db.DB.Select(&links, query)
+	}
+	
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve links"})
 		return

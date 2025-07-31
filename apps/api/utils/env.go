@@ -8,14 +8,14 @@ import (
 )
 
 type Config struct {
-	DBURL             string
-	JWTSecret         string
-	RateLimitRequests int
-	RateLimitWindow   int
-	UniqueClickExpiry int
-	GinMode           string
-	Port              string
-	BaseURL           string
+	DBURL               string
+	JWTSecret           string
+	RateLimitRequests   int
+	RateLimitWindow     int
+	UniqueClickExpiry   int
+	GinMode             string
+	Port                string
+	BaseURL             string
 }
 
 var AppConfig Config
@@ -26,14 +26,14 @@ func LoadEnv() {
 	_ = godotenv.Load()
 
 	AppConfig = Config{
-		DBURL:             getEnv("SUPABASE_DB_URL", ""),
-		JWTSecret:         getEnv("JWT_SECRET", "defaultsecret"),
-		RateLimitRequests: getEnvAsInt("RATE_LIMIT_REQUESTS", 100),
-		RateLimitWindow:   getEnvAsInt("RATE_LIMIT_WINDOW", 60),
-		UniqueClickExpiry: getEnvAsInt("UNIQUE_CLICK_EXPIRY_HOURS", 24),
-		GinMode:           getEnv("GIN_MODE", "release"),
-		Port:              getEnv("PORT", "8080"),
-		BaseURL:           getEnv("BASE_URL", ""),
+		DBURL:               getEnv("SUPABASE_DB_URL", ""),
+		JWTSecret:           getEnv("JWT_SECRET", "defaultsecret"),
+		RateLimitRequests:   getEnvAsInt("RATE_LIMIT_REQUESTS", 100),
+		RateLimitWindow:     getEnvAsInt("RATE_LIMIT_WINDOW", 60),
+		UniqueClickExpiry:   getEnvAsInt("UNIQUE_CLICK_EXPIRY_HOURS", 24),
+		GinMode:             getEnv("GIN_MODE", "release"),
+		Port:                getEnv("PORT", "8080"),
+		BaseURL:             getEnv("BASE_URL", ""),
 	}
 
 	if AppConfig.DBURL == "" {
