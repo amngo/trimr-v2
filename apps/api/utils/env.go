@@ -15,6 +15,7 @@ type Config struct {
 	UniqueClickExpiry int
 	GinMode           string
 	Port              string
+	BaseURL           string
 }
 
 var AppConfig Config
@@ -32,6 +33,7 @@ func LoadEnv() {
 		UniqueClickExpiry: getEnvAsInt("UNIQUE_CLICK_EXPIRY_HOURS", 24),
 		GinMode:           getEnv("GIN_MODE", "release"),
 		Port:              getEnv("PORT", "8080"),
+		BaseURL:           getEnv("BASE_URL", ""),
 	}
 
 	if AppConfig.DBURL == "" {

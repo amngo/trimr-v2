@@ -1,0 +1,184 @@
+package handlers
+
+import (
+	"database/sql"
+	"fmt"
+	"math/rand"
+	"net/http"
+	"time"
+	"url-shortener-api/db"
+	"url-shortener-api/models"
+	"url-shortener-api/utils"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+)
+
+const slugCharset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
+
+func generateSlug(length int) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = slugCharset[rand.Intn(len(slugCharset))]
+	}
+	return string(b)
+}
+
+// CreateLink handles the creation of a new short link
+func CreateLink(c *gin.Context) {
+	var req models.CreateLinkRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	// Generate a unique slug
+	var slug string
+	var link models.Link
+	maxAttempts := 10
+
+	for i := 0; i < maxAttempts; i++ {
+		slug = generateSlug(6)
+
+		// Check if slug already exists
+		err := db.DB.Get(&link, "SELECT id FROM links WHERE slug = $1", slug)
+		if err == sql.ErrNoRows {
+			// Slug is unique, we can use it
+			break
+		} else if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+			return
+		}
+
+		if i == maxAttempts-1 {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not generate unique slug"})
+			return
+		}
+	}
+
+	// Create the link
+	link = models.Link{
+		ID:          uuid.New(),
+		Name:        req.Name,
+		Slug:        slug,
+		Original:    req.URL,
+		Clicks:      0,
+		CreatedAt:   time.Now(),
+		LastUpdated: time.Now(),
+	}
+
+	query := `
+		INSERT INTO links (id, name, slug, original, clicks, created_at, last_updated)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
+	`
+
+	_, err := db.DB.Exec(query, link.ID, link.Name, link.Slug, link.Original, link.Clicks, link.CreatedAt, link.LastUpdated)
+	if err != nil {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
+			c.JSON(http.StatusConflict, gin.H{"error": "Slug already exists"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create link"})
+		return
+	}
+
+	// Get the base URL from environment or use a default
+	baseURL := utils.AppConfig.BaseURL
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("http://localhost:%s", utils.AppConfig.Port)
+	}
+
+	response := models.CreateLinkResponse{
+		ShortURL: fmt.Sprintf("%s/%s", baseURL, slug),
+		Slug:     slug,
+	}
+
+	c.JSON(http.StatusCreated, response)
+}
+
+// RedirectLink handles the redirect from short link to original URL
+func RedirectLink(c *gin.Context) {
+	slug := c.Param("slug")
+
+	var link models.Link
+	err := db.DB.Get(&link, "SELECT * FROM links WHERE slug = $1", slug)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Link not found"})
+		return
+	} else if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	// Increment click count
+	_, err = db.DB.Exec("UPDATE links SET clicks = clicks + 1, last_updated = NOW() WHERE id = $1", link.ID)
+	if err != nil {
+		// Log error but don't stop the redirect
+		fmt.Printf("Error updating click count: %v\n", err)
+	}
+
+	// Record click event
+	clientIP := c.ClientIP()
+	userAgent := c.Request.UserAgent()
+	clickEvent := models.ClickEvent{
+		ID:        uuid.New(),
+		LinkID:    link.ID,
+		Timestamp: time.Now(),
+		IP:        &clientIP,
+		Device:    &userAgent,
+	}
+
+	_, err = db.DB.Exec(
+		"INSERT INTO click_events (id, link_id, timestamp, ip, device) VALUES ($1, $2, $3, $4, $5)",
+		clickEvent.ID, clickEvent.LinkID, clickEvent.Timestamp, clickEvent.IP, clickEvent.Device,
+	)
+	if err != nil {
+		// Log error but don't stop the redirect
+		fmt.Printf("Error recording click event: %v\n", err)
+	}
+
+	c.Redirect(http.StatusMovedPermanently, link.Original)
+}
+
+// GetLinks retrieves all links (for dashboard)
+func GetLinks(c *gin.Context) {
+	var links []models.Link
+
+	query := `
+		SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id
+		FROM links
+		ORDER BY created_at DESC
+	`
+
+	err := db.DB.Select(&links, query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve links"})
+		return
+	}
+
+	// Generate short URLs
+	baseURL := utils.AppConfig.BaseURL
+	if baseURL == "" {
+		baseURL = fmt.Sprintf("http://localhost:%s", utils.AppConfig.Port)
+	}
+
+	type LinkResponse struct {
+		models.Link
+		ShortURL string `json:"shortUrl"`
+	}
+
+	response := make([]LinkResponse, len(links))
+	for i, link := range links {
+		response[i] = LinkResponse{
+			Link:     link,
+			ShortURL: fmt.Sprintf("%s/%s", baseURL, link.Slug),
+		}
+	}
+
+	c.JSON(http.StatusOK, response)
+}
