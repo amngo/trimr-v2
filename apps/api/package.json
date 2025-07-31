@@ -1,0 +1,17 @@
+{
+    "name": "api",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "dev": "go run main.go",
+        "build": "go build -o api main.go",
+        "lint": "golangci-lint run",
+        "test": "go test ./...",
+        "format": "gofmt -w .",
+        "check-types": "go vet ./..."
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+}
