@@ -1,9 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { getLinks, Link } from "@/lib/api";
+import { Link } from "@/lib/api";
 import { useAuth } from "@/contexts/auth-context";
+import { 
+  useLinks, 
+  useIsLoading, 
+  useError, 
+  useFetchLinks, 
+  useSearchQuery,
+  useSortBy,
+  useSortOrder,
+  getFilteredLinks,
+  getTotalClicks
+} from "@/stores/link-store";
+import { useLinkToasts } from "@/stores/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -31,28 +43,32 @@ import {
   Pause
 } from "lucide-react";
 
-export function LinksDashboard({ refresh }: { refresh?: number }) {
-  const [links, setLinks] = useState<Link[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export function LinksDashboard() {
+  // Zustand stores
+  const allLinks = useLinks();
+  const searchQuery = useSearchQuery();
+  const sortBy = useSortBy();
+  const sortOrder = useSortOrder();
+  const isLoading = useIsLoading();
+  const error = useError();
+  const fetchLinks = useFetchLinks();
+  
+  // Computed values
+  const links = getFilteredLinks(allLinks, searchQuery, sortBy, sortOrder);
+  const totalClicks = getTotalClicks(allLinks);
+  const linkCount = allLinks.length;
+  
+  const { showLinkCopied, showLinksRefreshed } = useLinkToasts();
   const { user } = useAuth();
-
-  const fetchLinks = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const data = await getLinks();
-      setLinks(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch links");
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
     fetchLinks();
-  }, [refresh]);
+  }, [fetchLinks]);
+
+  const handleRefresh = async () => {
+    await fetchLinks();
+    showLinksRefreshed();
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -67,6 +83,7 @@ export function LinksDashboard({ refresh }: { refresh?: number }) {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
+      showLinkCopied();
     } catch (err) {
       console.error("Failed to copy:", err);
     }
@@ -126,7 +143,7 @@ export function LinksDashboard({ refresh }: { refresh?: number }) {
     return badges;
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardHeader>

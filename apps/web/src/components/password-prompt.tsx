@@ -162,7 +162,7 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
 
             <div className="mt-6 text-center">
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                Don't have the password? Contact the link owner.
+                Don&apos;t have the password? Contact the link owner.
               </p>
             </div>
           </CardContent>

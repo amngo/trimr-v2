@@ -42,7 +42,7 @@ const floatingVariants = {
   },
 };
 
-export function HeroSection({ onLinkCreated }: { onLinkCreated?: () => void }) {
+export function HeroSection() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Animated background elements */}
@@ -148,7 +148,7 @@ export function HeroSection({ onLinkCreated }: { onLinkCreated?: () => void }) {
                 variants={itemVariants}
                 className="flex flex-col sm:flex-row gap-4"
               >
-                <LinkCreationSheet onSuccess={onLinkCreated}>
+                <LinkCreationSheet onSuccess={() => {}}>
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -215,7 +215,7 @@ export function HeroSection({ onLinkCreated }: { onLinkCreated?: () => void }) {
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
               >
-                <LinkForm onSuccess={onLinkCreated} />
+                <LinkForm onSuccess={() => {}} />
               </motion.div>
             </motion.div>
           </div>

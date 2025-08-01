@@ -1,6 +1,11 @@
 import type { Metadata } from 'next';
 import { Figtree, Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from '@/contexts/auth-context';
+import { StoreProvider } from '@/components/store-provider';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeScript } from '@/components/theme-script';
+import { ToastContainer } from '@/components/toast-container';
+import { ClientOnly } from '@/components/client-only';
 import './globals.css';
 
 const figtree = Figtree({
@@ -30,11 +35,28 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <ThemeScript />
+      </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${figtree.variable} antialiased dark`}
+        className={`${geistSans.variable} ${geistMono.variable} ${figtree.variable} antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            <StoreProvider>
+              {children}
+              <ClientOnly>
+                <ToastContainer />
+              </ClientOnly>
+            </StoreProvider>
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

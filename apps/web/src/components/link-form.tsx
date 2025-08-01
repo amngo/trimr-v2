@@ -2,19 +2,25 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { createLink } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Calendar, Clock, Lock, Link2, Copy, CheckCircle, AlertCircle, Plus, Minus } from "lucide-react";
+import { useCreateLink, useIsCreating, useError } from "@/stores";
+import { useLinkToasts } from "@/stores/utils";
 
 export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
+  // Zustand stores
+  const createLink = useCreateLink();
+  const isCreating = useIsCreating();
+  const error = useError();
+  const { showLinkCreated, showLinkError, showLinkCopied } = useLinkToasts();
+
+  // Local form state
   const [url, setUrl] = useState("");
   const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   
@@ -26,50 +32,41 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
   const [hasExpiry, setHasExpiry] = useState(false);
   const [activeFrom, setActiveFrom] = useState("");
   const [hasScheduled, setHasScheduled] = useState(false);
+  
+  // Current date for date/time inputs
+  const now = new Date();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
     setShortUrl(null);
     setCopied(false);
 
     try {
-      const requestData: any = {
-        url,
-        name: name || undefined,
-      };
-
-      // Add advanced options if enabled
-      if (hasPassword && password) {
-        requestData.password = password;
-      }
-      if (hasExpiry && expiresAt) {
-        requestData.expiresAt = new Date(expiresAt).toISOString();
-      }
-      if (hasScheduled && activeFrom) {
-        requestData.activeFrom = new Date(activeFrom).toISOString();
-      }
-
-      const response = await createLink(requestData);
+      // Create link using Zustand store
+      const link = await createLink(url, name || undefined);
       
-      setShortUrl(response.shortUrl);
-      setUrl("");
-      setName("");
-      setPassword("");
-      setExpiresAt("");
-      setActiveFrom("");
-      setHasPassword(false);
-      setHasExpiry(false);
-      setHasScheduled(false);
-      
-      if (onSuccess) {
-        onSuccess();
+      if (link) {
+        setShortUrl(link.shortUrl);
+        showLinkCreated(name);
+        
+        // Reset form
+        setUrl("");
+        setName("");
+        setPassword("");
+        setExpiresAt("");
+        setActiveFrom("");
+        setHasPassword(false);
+        setHasExpiry(false);
+        setHasScheduled(false);
+        setShowAdvanced(false);
+        
+        if (onSuccess) {
+          onSuccess();
+        }
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create link");
-    } finally {
-      setLoading(false);
+      const errorMessage = err instanceof Error ? err.message : "Failed to create link";
+      showLinkError(errorMessage);
     }
   };
 
@@ -77,11 +74,12 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
     if (shortUrl) {
       await navigator.clipboard.writeText(shortUrl);
       setCopied(true);
+      showLinkCopied();
       setTimeout(() => setCopied(false), 2000);
     }
   };
 
-  // Format datetime for input
+  // Format datetime for input (client-side only)
   const formatDateTimeLocal = (date: Date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -90,10 +88,6 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
     const minutes = String(date.getMinutes()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
   };
-
-  const now = new Date();
-  const oneHourLater = new Date(now.getTime() + 60 * 60 * 1000);
-  const oneDayLater = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
   return (
     <div className="space-y-6">
@@ -141,7 +135,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 required
-                disabled={loading}
+                disabled={isCreating}
                 className="h-12 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-blue-500 focus:border-blue-500"
               />
             </motion.div>
@@ -161,7 +155,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                 placeholder="Give your link a memorable name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                disabled={loading}
+                disabled={isCreating}
                 className="h-12 px-4 bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 focus:ring-blue-500 focus:border-blue-500"
               />
             </motion.div>
@@ -220,7 +214,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                     placeholder="Enter password for link access"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    disabled={loading}
+                    disabled={isCreating}
                     className="h-10 bg-white dark:bg-slate-700"
                   />
                 </motion.div>
@@ -256,7 +250,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                     value={activeFrom}
                     onChange={(e) => setActiveFrom(e.target.value)}
                     min={formatDateTimeLocal(now)}
-                    disabled={loading}
+                    disabled={isCreating}
                     className="h-10 bg-white dark:bg-slate-700"
                   />
                 </motion.div>
@@ -292,7 +286,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                     value={expiresAt}
                     onChange={(e) => setExpiresAt(e.target.value)}
                     min={hasScheduled && activeFrom ? activeFrom : formatDateTimeLocal(now)}
-                    disabled={loading}
+                    disabled={isCreating}
                     className="h-10 bg-white dark:bg-slate-700"
                   />
                 </motion.div>
@@ -361,9 +355,9 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
           <Button 
             type="submit" 
             className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            disabled={loading}
+            disabled={isCreating}
           >
-            {loading ? (
+            {isCreating ? (
               <div className="flex items-center space-x-2">
                 <motion.div
                   className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"

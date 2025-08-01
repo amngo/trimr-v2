@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { HeroSection } from "@/components/hero-section";
 import { FeaturesSection } from "@/components/features-section";
 import { LinksDashboard } from "@/components/links-dashboard";
@@ -9,18 +8,12 @@ import { UserProfile } from "@/components/auth/user-profile";
 import { useAuth } from "@/contexts/auth-context";
 
 export default function Home() {
-  const [refreshCount, setRefreshCount] = useState(0);
   const { user, isLoading } = useAuth();
-
-  const handleLinkCreated = () => {
-    // Trigger dashboard refresh
-    setRefreshCount(prev => prev + 1);
-  };
 
   return (
     <div className="min-h-screen">
-      <HeroSection onLinkCreated={handleLinkCreated} />
-      <FeaturesSection onLinkCreated={handleLinkCreated} />
+      <HeroSection />
+      <FeaturesSection />
       
       {/* Dashboard Section */}
       <section id="dashboard" className="py-20 md:py-32 bg-slate-50 dark:bg-slate-800">
@@ -49,7 +42,7 @@ export default function Home() {
             )}
           </div>
           
-          <LinksDashboard refresh={refreshCount} />
+          <LinksDashboard />
         </div>
       </section>
     </div>
