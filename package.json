@@ -1,5 +1,5 @@
 {
-    "name": "url-shortener",
+    "name": "trimr-v2",
     "private": true,
     "scripts": {
         "build": "turbo run build",

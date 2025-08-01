@@ -33,30 +33,37 @@ jobs:
       - name: Build
         run: pnpm build
 
-  deploy-backend:
-    needs: build
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Authenticate with GCP
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.GCP_SA_KEY }}
-
+      # Authenticate with GCP
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
 
-      - name: Build & Push Docker Image
-        run: gcloud builds submit --tag gcr.io/${{ secrets.GCP_PROJECT_ID }}/go-api
+      # Configure Docker to use gcloud as a credential helper
+      - name: Configure Docker
+        run: gcloud auth configure-docker us.gcr.io --quiet
 
+      # Build and push Docker image
+      - name: Build and push Docker image
+        run: |
+          IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend"
+          docker build -t $IMAGE .
+          docker push $IMAGE
+
+      # Deploy to Cloud Run
       - name: Deploy to Cloud Run
         run: |
-          gcloud run deploy ${{ secrets.GCP_SERVICE }} \
-            --image gcr.io/${{ secrets.GCP_PROJECT_ID }}/go-api \
+          IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend"
+          gcloud run deploy backend-service \
+            --image $IMAGE \
             --region ${{ secrets.GCP_REGION }} \
             --platform managed \
             --allow-unauthenticated
