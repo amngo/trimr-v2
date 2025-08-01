@@ -10,7 +10,12 @@ import (
 func SetupRoutes(r *gin.Engine) {
 	// Apply CORS middleware
 	r.Use(middleware.CORS())
-	
+
+	// Test endpoints (no auth required)
+	r.GET("/ping", handlers.Ping)
+	r.GET("/health", handlers.Health)
+	r.GET("/ready", handlers.Ready)
+
 	// API routes
 	api := r.Group("/api")
 	{
