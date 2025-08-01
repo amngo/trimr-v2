@@ -19,6 +19,7 @@ type Link struct {
 	Password    *string    `json:"-" db:"password"`
 	UserID      *uuid.UUID `json:"userId,omitempty" db:"user_id"`
 	FaviconURL  *string    `json:"faviconUrl,omitempty" db:"favicon_url"`
+	Disabled    bool       `json:"disabled" db:"disabled"`
 }
 
 type CreateLinkRequest struct {
@@ -36,6 +37,11 @@ type CreateLinkResponse struct {
 
 type AccessLinkRequest struct {
 	Password *string `json:"password,omitempty"`
+}
+
+type UpdateLinkRequest struct {
+	Name     *string `json:"name,omitempty"`
+	Disabled *bool   `json:"disabled,omitempty"`
 }
 
 type LinkStats struct {

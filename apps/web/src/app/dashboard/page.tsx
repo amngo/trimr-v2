@@ -107,7 +107,7 @@ export default function Dashboard() {
           animate="visible"
         >
           <motion.div variants={itemVariants}>
-            <Card className="glass">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Total Links
@@ -126,7 +126,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="glass">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Total Clicks
@@ -145,7 +145,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="glass">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Active Links
@@ -164,7 +164,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="glass">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Avg. Clicks

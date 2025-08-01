@@ -181,9 +181,9 @@ class ApiClient {
     return this.request<Link>(ROUTES.API.LINKS.GET(id))
   }
 
-  async updateLink(id: string, data: UpdateLinkRequest): Promise<Link> {
-    return this.request<Link>(ROUTES.API.LINKS.UPDATE(id), {
-      method: 'PUT',
+  async updateLink(id: string, data: UpdateLinkRequest): Promise<{ message: string }> {
+    return this.request<{ message: string }>(ROUTES.API.LINKS.UPDATE(id), {
+      method: 'PATCH',
       body: JSON.stringify(data),
     })
   }

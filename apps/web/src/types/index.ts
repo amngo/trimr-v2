@@ -35,6 +35,7 @@ export interface Link {
   isExpired: boolean;
   userId?: string;
   faviconUrl?: string;
+  disabled: boolean;
 }
 
 export interface CreateLinkRequest {
@@ -55,6 +56,7 @@ export interface UpdateLinkRequest {
   expiresAt?: string;
   activeFrom?: string;
   password?: string;
+  disabled?: boolean;
 }
 
 export interface AccessLinkRequest {

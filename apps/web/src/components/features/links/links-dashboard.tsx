@@ -1,9 +1,7 @@
 'use client';
-
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from '@/lib/api';
-import { useAuth } from '@/contexts/auth-context';
 import {
   useLinks,
   useIsLoading,
@@ -13,7 +11,6 @@ import {
   useSortBy,
   useSortOrder,
   getFilteredLinks,
-  getTotalClicks,
 } from '@/stores/link-store';
 import { useLinkToasts } from '@/stores/utils';
 import { Button } from '@/components/ui/button';
@@ -47,7 +44,30 @@ import {
   CheckCircle,
   XCircle,
   Pause,
+  Trash2,
+  MoreHorizontal,
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Switch } from '@/components/ui/switch';
+import { deleteLink, updateLink } from '@/lib/api';
+import { useState } from 'react';
 
 export function LinksDashboard() {
   // Zustand stores
@@ -59,22 +79,18 @@ export function LinksDashboard() {
   const error = useError();
   const fetchLinks = useFetchLinks();
 
+  // Local state for operations
+  const [deletingLinkId, setDeletingLinkId] = useState<string | null>(null);
+  const [togglingLinkId, setTogglingLinkId] = useState<string | null>(null);
+
   // Computed values
   const links = getFilteredLinks(allLinks, searchQuery, sortBy, sortOrder);
-  const totalClicks = getTotalClicks(allLinks);
-  const linkCount = allLinks.length;
 
-  const { showLinkCopied, showLinksRefreshed } = useLinkToasts();
-  const { user } = useAuth();
+  const { showLinkCopied } = useLinkToasts();
 
   useEffect(() => {
     fetchLinks();
   }, [fetchLinks]);
-
-  const handleRefresh = async () => {
-    await fetchLinks();
-    showLinksRefreshed();
-  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -95,7 +111,50 @@ export function LinksDashboard() {
     }
   };
 
+  const handleDeleteLink = async (linkId: string) => {
+    try {
+      setDeletingLinkId(linkId);
+      await deleteLink(linkId);
+      await fetchLinks(); // Refresh the list
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to delete link:', err);
+      // You could add an error toast here
+    } finally {
+      setDeletingLinkId(null);
+    }
+  };
+
+  const handleToggleDisabled = async (
+    linkId: string,
+    currentDisabled: boolean,
+  ) => {
+    try {
+      setTogglingLinkId(linkId);
+      await updateLink(linkId, { disabled: !currentDisabled });
+      await fetchLinks(); // Refresh the list
+      // You could add a toast notification here
+    } catch (err) {
+      console.error('Failed to toggle link status:', err);
+      // You could add an error toast here
+    } finally {
+      setTogglingLinkId(null);
+    }
+  };
+
   const getStatusBadge = (link: Link) => {
+    if (link.disabled) {
+      return (
+        <Badge
+          variant="secondary"
+          className="flex items-center space-x-1 bg-gray-500 hover:bg-gray-600"
+        >
+          <Pause className="w-3 h-3" />
+          <span>Disabled</span>
+        </Badge>
+      );
+    }
+
     if (link.isExpired) {
       return (
         <Badge variant="destructive" className="flex items-center space-x-1">
@@ -162,7 +221,7 @@ export function LinksDashboard() {
 
   if (isLoading) {
     return (
-      <Card className="glass">
+      <Card>
         <CardHeader>
           <CardTitle>Your Links</CardTitle>
           <CardDescription>Manage your shortened links</CardDescription>
@@ -197,7 +256,7 @@ export function LinksDashboard() {
 
   if (links.length === 0) {
     return (
-      <Card className="glass">
+      <Card>
         <CardHeader>
           <CardTitle>Your Links</CardTitle>
           <CardDescription>Manage your shortened links</CardDescription>
@@ -227,7 +286,7 @@ export function LinksDashboard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card className="glass">
+      <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -363,23 +422,87 @@ export function LinksDashboard() {
 
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyToClipboard(link.shortUrl)}
-                          className="hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => window.open(link.shortUrl, '_blank')}
-                          className="hover:bg-green-50 dark:hover:bg-green-900/20"
-                          disabled={!link.isActive || link.isExpired}
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </Button>
+                        {/* Disable/Enable Toggle */}
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            checked={!link.disabled}
+                            onCheckedChange={() =>
+                              handleToggleDisabled(link.id, link.disabled)
+                            }
+                            disabled={togglingLinkId === link.id}
+                            className="data-[state=checked]:bg-green-500"
+                          />
+                        </div>
+
+                        {/* More Actions Dropdown */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="hover:bg-slate-50 dark:hover:bg-slate-800"
+                            >
+                              <MoreHorizontal className="w-4 h-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => copyToClipboard(link.shortUrl)}
+                            >
+                              <Copy className="w-4 h-4 mr-2" />
+                              Copy Link
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                window.open(link.shortUrl, '_blank')
+                              }
+                              disabled={
+                                !link.isActive ||
+                                link.isExpired ||
+                                link.disabled
+                              }
+                            >
+                              <ExternalLink className="w-4 h-4 mr-2" />
+                              Visit Link
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem
+                                  className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                                  onSelect={(e) => e.preventDefault()}
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Delete Link
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Delete Link
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Are you sure you want to delete this link?
+                                    This action cannot be undone and all click
+                                    analytics will be lost.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeleteLink(link.id)}
+                                    disabled={deletingLinkId === link.id}
+                                    className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                                  >
+                                    {deletingLinkId === link.id
+                                      ? 'Deleting...'
+                                      : 'Delete'}
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </TableCell>
                   </motion.tr>

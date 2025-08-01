@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 	"net/http"
+	"strings"
 	"time"
 	"url-shortener-api/db"
 	"url-shortener-api/middleware"
@@ -157,6 +158,12 @@ func RedirectLink(c *gin.Context) {
 		return
 	}
 
+	// Check if link is disabled
+	if link.Disabled {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Link has been disabled"})
+		return
+	}
+
 	// Check password protection
 	if link.Password != nil {
 		var req models.AccessLinkRequest
@@ -227,7 +234,7 @@ func GetLinks(c *gin.Context) {
 	if userID != nil {
 		// If authenticated, show only user's links
 		query = `
-			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id, favicon_url
+			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id, favicon_url, disabled
 			FROM links
 			WHERE user_id = $1
 			ORDER BY created_at DESC
@@ -236,7 +243,7 @@ func GetLinks(c *gin.Context) {
 	} else {
 		// If not authenticated, show only anonymous links (for backward compatibility)
 		query = `
-			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id, favicon_url
+			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id, favicon_url, disabled
 			FROM links
 			WHERE user_id IS NULL
 			ORDER BY created_at DESC
@@ -345,4 +352,163 @@ func CheckLinkAccess(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+// UpdateLink handles updating link properties (name, disabled status)
+func UpdateLink(c *gin.Context) {
+	linkID := c.Param("id")
+	
+	// Validate UUID format
+	id, err := uuid.Parse(linkID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid link ID format"})
+		return
+	}
+
+	var req models.UpdateLinkRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		return
+	}
+
+	// Get user ID from context (set by JWT middleware)
+	userID := middleware.GetUserID(c)
+
+	// Check if link exists and belongs to user
+	var existingLink models.Link
+	var query string
+	var err2 error
+
+	if userID != nil {
+		query = "SELECT * FROM links WHERE id = $1 AND user_id = $2"
+		err2 = db.DB.Get(&existingLink, query, id, *userID)
+	} else {
+		query = "SELECT * FROM links WHERE id = $1 AND user_id IS NULL"
+		err2 = db.DB.Get(&existingLink, query, id)
+	}
+
+	if err2 == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Link not found or access denied"})
+		return
+	} else if err2 != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	// Build update query dynamically
+	updateFields := []string{}
+	args := []interface{}{}
+	argCount := 1
+
+	if req.Name != nil {
+		updateFields = append(updateFields, fmt.Sprintf("name = $%d", argCount))
+		args = append(args, req.Name)
+		argCount++
+	}
+
+	if req.Disabled != nil {
+		updateFields = append(updateFields, fmt.Sprintf("disabled = $%d", argCount))
+		args = append(args, *req.Disabled)
+		argCount++
+	}
+
+	if len(updateFields) == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "No valid fields to update"})
+		return
+	}
+
+	updateFields = append(updateFields, fmt.Sprintf("last_updated = $%d", argCount))
+	args = append(args, time.Now())
+	argCount++
+
+	// Add WHERE clause
+	args = append(args, id)
+	whereClause := fmt.Sprintf("id = $%d", argCount)
+
+	if userID != nil {
+		argCount++
+		args = append(args, *userID)
+		whereClause += fmt.Sprintf(" AND user_id = $%d", argCount)
+	} else {
+		whereClause += " AND user_id IS NULL"
+	}
+
+	updateQuery := fmt.Sprintf("UPDATE links SET %s WHERE %s", 
+		strings.Join(updateFields, ", "), whereClause)
+
+	// Execute update
+	result, err := db.DB.Exec(updateQuery, args...)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update link"})
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Link not found or no changes made"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Link updated successfully"})
+}
+
+// DeleteLink handles deleting a link
+func DeleteLink(c *gin.Context) {
+	linkID := c.Param("id")
+	
+	// Validate UUID format
+	id, err := uuid.Parse(linkID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid link ID format"})
+		return
+	}
+
+	// Get user ID from context (set by JWT middleware)
+	userID := middleware.GetUserID(c)
+
+	// Check if link exists and belongs to user before deleting
+	var existingLink models.Link
+	var query string
+	var err2 error
+
+	if userID != nil {
+		query = "SELECT id FROM links WHERE id = $1 AND user_id = $2"
+		err2 = db.DB.Get(&existingLink, query, id, *userID)
+	} else {
+		query = "SELECT id FROM links WHERE id = $1 AND user_id IS NULL"
+		err2 = db.DB.Get(&existingLink, query, id)
+	}
+
+	if err2 == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Link not found or access denied"})
+		return
+	} else if err2 != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Database error"})
+		return
+	}
+
+	// Delete the link (this will cascade delete click_events due to foreign key constraint)
+	var deleteQuery string
+	var result sql.Result
+
+	if userID != nil {
+		deleteQuery = "DELETE FROM links WHERE id = $1 AND user_id = $2"
+		result, err = db.DB.Exec(deleteQuery, id, *userID)
+	} else {
+		deleteQuery = "DELETE FROM links WHERE id = $1 AND user_id IS NULL"
+		result, err = db.DB.Exec(deleteQuery, id)
+	}
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete link"})
+		return
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil || rowsAffected == 0 {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Link not found or already deleted"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Link deleted successfully"})
 }
