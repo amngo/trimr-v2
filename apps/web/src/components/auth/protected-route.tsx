@@ -1,12 +1,18 @@
-"use client";
+'use client';
 
-import { useEffect, ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { useAuth } from "@/contexts/auth-context";
-import { Loader2, Lock, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import { useAuth } from '@/contexts/auth-context';
+import { Loader2, Lock, ArrowRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -24,7 +30,7 @@ const LoadingSpinner = () => (
     >
       <motion.div
         animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
       >
         <Loader2 className="w-12 h-12 text-blue-600" />
       </motion.div>
@@ -58,7 +64,8 @@ const AuthRequiredScreen = ({ onGoHome }: { onGoHome: () => void }) => (
               Authentication Required
             </CardTitle>
             <CardDescription className="text-slate-600 dark:text-slate-300 mt-2">
-              You need to be logged in to access this page. Please sign in to continue.
+              You need to be logged in to access this page. Please sign in to
+              continue.
             </CardDescription>
           </div>
         </CardHeader>
@@ -68,7 +75,7 @@ const AuthRequiredScreen = ({ onGoHome }: { onGoHome: () => void }) => (
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Button 
+            <Button
               onClick={onGoHome}
               className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white h-12"
             >
@@ -83,7 +90,7 @@ const AuthRequiredScreen = ({ onGoHome }: { onGoHome: () => void }) => (
             transition={{ duration: 0.5, delay: 0.6 }}
           >
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              Don't have an account? You can create one on the home page.
+              Don&apos;t have an account? You can create one on the home page.
             </p>
           </motion.div>
         </CardContent>
@@ -92,12 +99,12 @@ const AuthRequiredScreen = ({ onGoHome }: { onGoHome: () => void }) => (
   </div>
 );
 
-export function ProtectedRoute({ 
-  children, 
-  fallback, 
-  redirectTo = "/" 
+export function ProtectedRoute({
+  children,
+  fallback,
+  redirectTo = '/',
 }: ProtectedRouteProps) {
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -122,12 +129,8 @@ export function ProtectedRoute({
     if (fallback) {
       return <>{fallback}</>;
     }
-    
-    return (
-      <AuthRequiredScreen 
-        onGoHome={() => router.push(redirectTo)}
-      />
-    );
+
+    return <AuthRequiredScreen onGoHome={() => router.push(redirectTo)} />;
   }
 
   // User is authenticated, render the protected content
@@ -140,12 +143,12 @@ export function withProtectedRoute<P extends object>(
   options?: {
     fallback?: ReactNode;
     redirectTo?: string;
-  }
+  },
 ) {
   return function ProtectedComponent(props: P) {
     return (
-      <ProtectedRoute 
-        fallback={options?.fallback} 
+      <ProtectedRoute
+        fallback={options?.fallback}
         redirectTo={options?.redirectTo}
       >
         <Component {...props} />

@@ -252,7 +252,7 @@ export default function LoginPage() {
                 className="mt-8 text-center space-y-4"
               >
                 <div className="flex items-center justify-center space-x-2 text-sm text-slate-600 dark:text-slate-300">
-                  <span>Don't have an account?</span>
+                  <span>Don&apos;t have an account?</span>
                   <Link
                     href="/register"
                     className="text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"

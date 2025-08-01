@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { useLinkStore } from '@/stores/link-store';
 
 interface StoreProviderProps {
   children: React.ReactNode;

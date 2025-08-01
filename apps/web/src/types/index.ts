@@ -74,11 +74,13 @@ export interface AccessLinkResponse {
 export interface User {
   id: string;
   email: string;
+  name?: string;
   createdAt: string;
   updatedAt?: string;
 }
 
 export interface RegisterRequest {
+  name: string;
   email: string;
   password: string;
 }

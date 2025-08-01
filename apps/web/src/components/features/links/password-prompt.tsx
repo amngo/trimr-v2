@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { Aurora } from '@/components/effects';
 
 interface PasswordPromptProps {
   slug: string;

@@ -151,7 +151,7 @@ export async function copyToClipboard(text: string): Promise<boolean> {
 /**
  * Debounces a function call
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): (...args: Parameters<T>) => void {
@@ -166,7 +166,7 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttles a function call
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
   func: T,
   limit: number
 ): (...args: Parameters<T>) => void {
@@ -203,7 +203,7 @@ export function generateId(length: number = 8): string {
 /**
  * Safely parses JSON with error handling
  */
-export function safeJsonParse<T = any>(json: string, fallback: T): T {
+export function safeJsonParse<T = unknown>(json: string, fallback: T): T {
   try {
     return JSON.parse(json) as T
   } catch {
@@ -258,14 +258,27 @@ export function safeLocalStorage() {
 /**
  * Handles API errors and converts them to appropriate error types
  */
-export function handleApiError(error: any): AppError {
+export function handleApiError(error: unknown): AppError {
   if (error instanceof AppError) {
     return error
   }
 
-  if (error?.response?.status) {
-    const status = error.response.status
-    const message = error.response.data?.error || error.message || 'An error occurred'
+  // Type guard for axios-like error response
+  if (
+    error && 
+    typeof error === 'object' && 
+    'response' in error && 
+    error.response &&
+    typeof error.response === 'object' &&
+    'status' in error.response
+  ) {
+    const response = error.response as { 
+      status: number; 
+      data?: { error?: string }; 
+    }
+    const errorObj = error as { message?: string }
+    const status = response.status
+    const message = response.data?.error || errorObj.message || 'An error occurred'
 
     switch (status) {
       case HTTP_STATUS.BAD_REQUEST:
@@ -283,11 +296,26 @@ export function handleApiError(error: any): AppError {
     }
   }
 
-  if (error?.name === 'NetworkError' || error?.code === 'NETWORK_ERROR') {
+  // Type guard for network error
+  if (
+    error && 
+    typeof error === 'object' && 
+    (('name' in error && error.name === 'NetworkError') || 
+     ('code' in error && error.code === 'NETWORK_ERROR'))
+  ) {
     return new NetworkError(ERROR_MESSAGES.NETWORK.OFFLINE, 0)
   }
 
-  return new AppError(error?.message || 'An unexpected error occurred')
+  // Type guard for error with message
+  const message = 
+    error && 
+    typeof error === 'object' && 
+    'message' in error && 
+    typeof error.message === 'string'
+      ? error.message
+      : 'An unexpected error occurred'
+
+  return new AppError(message)
 }
 
 /**

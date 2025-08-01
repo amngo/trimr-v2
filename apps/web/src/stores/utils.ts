@@ -180,7 +180,7 @@ export const useDebouncedSearch = (delay: number = 300) => {
   const setSearchQuery = useLinkStore((state) => state.setSearchQuery);
 
   const debouncedSetSearch = useCallback(
-    debounce(setSearchQuery, delay),
+    debounce(setSearchQuery as (...args: unknown[]) => void, delay) as (query: string) => void,
     [setSearchQuery, delay]
   );
 
@@ -188,14 +188,14 @@ export const useDebouncedSearch = (delay: number = 300) => {
 };
 
 // Simple debounce utility
-function debounce<T extends (...args: any[]) => void>(
+function debounce<T extends (...args: unknown[]) => void>(
   func: T,
   delay: number
-): (...args: Parameters<T>) => void {
+): T {
   let timeoutId: NodeJS.Timeout;
   
-  return (...args: Parameters<T>) => {
+  return ((...args: Parameters<T>) => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => func(...args), delay);
-  };
+  }) as T;
 }

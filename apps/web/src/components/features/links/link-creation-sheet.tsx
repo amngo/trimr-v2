@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { createLink } from '@/lib/api';
+import type { CreateLinkRequest } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -80,7 +81,7 @@ export function LinkCreationSheet({
 
     try {
       // Prepare the request data
-      const requestData: any = {
+      const requestData: CreateLinkRequest = {
         url,
         name: name || undefined,
       };

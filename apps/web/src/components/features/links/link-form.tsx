@@ -21,8 +21,6 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Current date for date/time inputs
-  const now = new Date();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,15 +59,6 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
     }
   };
 
-  // Format datetime for input (client-side only)
-  const formatDateTimeLocal = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
-  };
 
   return (
     <div className="space-y-6 glass border rounded-3xl p-8">

@@ -6,7 +6,6 @@ import { Link2, BarChart3, Plus, TrendingUp, MousePointer } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getLinks, Link } from '@/lib/api';
-import { useAuth } from '@/contexts/auth-context';
 import { LinkCreationSheet, LinksDashboard } from '@/components';
 
 const containerVariants = {
@@ -36,7 +35,6 @@ export default function DashboardPage() {
   const [links, setLinks] = useState<Link[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { user } = useAuth();
 
   const fetchLinks = async () => {
     try {
@@ -58,21 +56,6 @@ export default function DashboardPage() {
   const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
   const activeLinks = links.filter((link) => link.clicks > 0).length;
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-    });
-  };
-
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
 
   return (
     <div className="min-h-screen relative bg-slate-900">

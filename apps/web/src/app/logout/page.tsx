@@ -192,8 +192,8 @@ export default function LogoutPage() {
                     className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4"
                   >
                     <p className="text-sm text-amber-800 dark:text-amber-200">
-                      You'll need to sign in again to access your dashboard and
-                      manage your links.
+                      You&apos;ll need to sign in again to access your dashboard
+                      and manage your links.
                     </p>
                   </motion.div>
 
