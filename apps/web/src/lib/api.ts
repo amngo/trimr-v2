@@ -222,5 +222,20 @@ export const updateLink = (id: string, data: UpdateLinkRequest) => apiClient.upd
 export const deleteLink = (id: string) => apiClient.deleteLink(id)
 export const checkLinkAccess = (slug: string, password?: string) => apiClient.checkLinkAccess(slug, password)
 
+// Export types for use in other components
+export type {
+  Link,
+  CreateLinkRequest,
+  CreateLinkResponse,
+  UpdateLinkRequest,
+  User,
+  RegisterRequest,
+  LoginRequest,
+  AuthResponse,
+  AccessLinkRequest,
+  AccessLinkResponse,
+  AppError
+}
+
 // Export the client instance for advanced usage
 export default apiClient

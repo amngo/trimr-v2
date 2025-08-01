@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { motion } from "framer-motion";
-import { Link } from "@/lib/api";
-import { useAuth } from "@/contexts/auth-context";
-import { 
-  useLinks, 
-  useIsLoading, 
-  useError, 
-  useFetchLinks, 
+import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Link } from '@/lib/api';
+import { useAuth } from '@/contexts/auth-context';
+import {
+  useLinks,
+  useIsLoading,
+  useError,
+  useFetchLinks,
   useSearchQuery,
   useSortBy,
   useSortOrder,
   getFilteredLinks,
-  getTotalClicks
-} from "@/stores/link-store";
-import { useLinkToasts } from "@/stores/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+  getTotalClicks,
+} from '@/stores/link-store';
+import { useLinkToasts } from '@/stores/utils';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -25,23 +25,28 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  Copy, 
-  ExternalLink, 
-  Clock, 
-  Calendar, 
-  Lock, 
-  Eye, 
-  Users, 
+} from '@/components/ui/table';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Copy,
+  ExternalLink,
+  Clock,
+  Calendar,
+  Eye,
+  Users,
   AlertTriangle,
   CheckCircle,
   XCircle,
-  Pause
-} from "lucide-react";
+  Pause,
+} from 'lucide-react';
 
 export function LinksDashboard() {
   // Zustand stores
@@ -52,12 +57,12 @@ export function LinksDashboard() {
   const isLoading = useIsLoading();
   const error = useError();
   const fetchLinks = useFetchLinks();
-  
+
   // Computed values
   const links = getFilteredLinks(allLinks, searchQuery, sortBy, sortOrder);
   const totalClicks = getTotalClicks(allLinks);
   const linkCount = allLinks.length;
-  
+
   const { showLinkCopied, showLinksRefreshed } = useLinkToasts();
   const { user } = useAuth();
 
@@ -71,12 +76,12 @@ export function LinksDashboard() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   };
 
@@ -85,7 +90,7 @@ export function LinksDashboard() {
       await navigator.clipboard.writeText(text);
       showLinkCopied();
     } catch (err) {
-      console.error("Failed to copy:", err);
+      console.error('Failed to copy:', err);
     }
   };
 
@@ -98,7 +103,7 @@ export function LinksDashboard() {
         </Badge>
       );
     }
-    
+
     if (!link.isActive) {
       return (
         <Badge variant="secondary" className="flex items-center space-x-1">
@@ -107,9 +112,12 @@ export function LinksDashboard() {
         </Badge>
       );
     }
-    
+
     return (
-      <Badge variant="default" className="flex items-center space-x-1 bg-green-500 hover:bg-green-600">
+      <Badge
+        variant="default"
+        className="flex items-center space-x-1 bg-green-500 hover:bg-green-600"
+      >
         <CheckCircle className="w-3 h-3" />
         <span>Active</span>
       </Badge>
@@ -118,28 +126,36 @@ export function LinksDashboard() {
 
   const getFeatureBadges = (link: Link) => {
     const badges = [];
-    
+
     if (link.expiresAt) {
       badges.push(
-        <Badge key="expiry" variant="outline" className="flex items-center space-x-1">
+        <Badge
+          key="expiry"
+          variant="outline"
+          className="flex items-center space-x-1"
+        >
           <Calendar className="w-3 h-3" />
           <span>Expires</span>
-        </Badge>
+        </Badge>,
       );
     }
-    
+
     if (link.activeFrom) {
       badges.push(
-        <Badge key="scheduled" variant="outline" className="flex items-center space-x-1">
+        <Badge
+          key="scheduled"
+          variant="outline"
+          className="flex items-center space-x-1"
+        >
           <Clock className="w-3 h-3" />
           <span>Scheduled</span>
-        </Badge>
+        </Badge>,
       );
     }
-    
+
     // We can't directly check if password exists from the API response for security,
     // but we can infer it from other indicators if needed
-    
+
     return badges;
   };
 
@@ -221,12 +237,12 @@ export function LinksDashboard() {
                 Manage your shortened links ({links.length} total)
               </CardDescription>
             </div>
-            
+
             {/* Summary Stats */}
             <div className="flex space-x-4 text-sm">
               <div className="text-center">
                 <div className="font-semibold text-green-600 dark:text-green-400">
-                  {links.filter(l => l.isActive && !l.isExpired).length}
+                  {links.filter((l) => l.isActive && !l.isExpired).length}
                 </div>
                 <div className="text-slate-500">Active</div>
               </div>
@@ -252,9 +268,13 @@ export function LinksDashboard() {
                 <TableRow className="bg-slate-50 dark:bg-slate-800/50">
                   <TableHead className="font-semibold">Link Details</TableHead>
                   <TableHead className="font-semibold">Status</TableHead>
-                  <TableHead className="font-semibold text-center">Analytics</TableHead>
+                  <TableHead className="font-semibold text-center">
+                    Analytics
+                  </TableHead>
                   <TableHead className="font-semibold">Timing</TableHead>
-                  <TableHead className="font-semibold text-right">Actions</TableHead>
+                  <TableHead className="font-semibold text-right">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -270,7 +290,9 @@ export function LinksDashboard() {
                       <div className="space-y-1">
                         <div className="font-medium text-slate-900 dark:text-slate-100">
                           {link.name || (
-                            <span className="text-slate-500 italic">Untitled Link</span>
+                            <span className="text-slate-500 italic">
+                              Untitled Link
+                            </span>
                           )}
                         </div>
                         <div className="flex items-center space-x-2">
@@ -283,11 +305,9 @@ export function LinksDashboard() {
                         </div>
                       </div>
                     </TableCell>
-                    
-                    <TableCell>
-                      {getStatusBadge(link)}
-                    </TableCell>
-                    
+
+                    <TableCell>{getStatusBadge(link)}</TableCell>
+
                     <TableCell className="text-center">
                       <div className="space-y-1">
                         <div className="flex items-center justify-center space-x-4">
@@ -303,14 +323,13 @@ export function LinksDashboard() {
                           </div>
                         </div>
                         <div className="text-xs text-slate-500">
-                          {link.uniqueClicks > 0 ? 
-                            `${Math.round((link.uniqueClicks / link.clicks) * 100)}% unique` :
-                            'No clicks yet'
-                          }
+                          {link.uniqueClicks > 0
+                            ? `${Math.round((link.uniqueClicks / link.clicks) * 100)}% unique`
+                            : 'No clicks yet'}
                         </div>
                       </div>
                     </TableCell>
-                    
+
                     <TableCell className="space-y-1">
                       <div className="text-sm space-y-1">
                         <div className="text-slate-600 dark:text-slate-400">
@@ -328,7 +347,7 @@ export function LinksDashboard() {
                         )}
                       </div>
                     </TableCell>
-                    
+
                     <TableCell className="text-right">
                       <div className="flex justify-end space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
@@ -342,7 +361,7 @@ export function LinksDashboard() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(link.shortUrl, "_blank")}
+                          onClick={() => window.open(link.shortUrl, '_blank')}
                           className="hover:bg-green-50 dark:hover:bg-green-900/20"
                           disabled={!link.isActive || link.isExpired}
                         >
