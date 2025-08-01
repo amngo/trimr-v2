@@ -7,6 +7,7 @@ import { LogOut, ArrowLeft, CheckCircle, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/auth-context';
 import Link from 'next/link';
+import { Card, CardContent } from '@/components';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -26,7 +27,7 @@ const itemVariants = {
     opacity: 1,
     transition: {
       duration: 0.5,
-      ease: 'easeOut',
+      ease: 'easeOut' as const,
     },
   },
 };
@@ -66,7 +67,7 @@ export default function LogoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
@@ -114,137 +115,138 @@ export default function LogoutPage() {
         </motion.div>
 
         {/* Logout Card */}
-        <motion.div
-          variants={itemVariants}
-          className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20 dark:border-slate-700/50"
-        >
-          {isLoggedOut ? (
-            // Success State
-            <motion.div
-              className="text-center space-y-6"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className="flex justify-center">
+        <motion.div variants={itemVariants}>
+          <Card>
+            <CardContent>
+              {isLoggedOut ? (
+                // Success State
                 <motion.div
-                  className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, duration: 0.5, type: 'spring' }}
+                  className="text-center space-y-6"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
                 >
-                  <CheckCircle className="w-8 h-8 text-white" />
-                </motion.div>
-              </div>
-
-              <div>
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-                  Logged Out Successfully
-                </h1>
-                <p className="text-slate-600 dark:text-slate-300">
-                  You have been securely logged out of your account.
-                </p>
-              </div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="space-y-4"
-              >
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Redirecting you to the home page...
-                </p>
-
-                <Link href="/">
-                  <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                    <Home className="w-5 h-5 mr-2" />
-                    Go to Home
-                  </Button>
-                </Link>
-              </motion.div>
-            </motion.div>
-          ) : (
-            // Logout Confirmation
-            <motion.div
-              className="text-center space-y-6"
-              variants={containerVariants}
-            >
-              <motion.div variants={itemVariants}>
-                <div className="flex justify-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
-                    <LogOut className="w-8 h-8 text-white" />
+                  <div className="flex justify-center">
+                    <motion.div
+                      className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-lg"
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ delay: 0.2, duration: 0.5, type: 'spring' }}
+                    >
+                      <CheckCircle className="w-8 h-8 text-white" />
+                    </motion.div>
                   </div>
-                </div>
-              </motion.div>
 
-              <motion.div variants={itemVariants}>
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
-                  Sign Out
-                </h1>
-                <p className="text-slate-600 dark:text-slate-300 mt-2">
-                  Are you sure you want to sign out of your account?
-                </p>
-              </motion.div>
+                  <div>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                      Logged Out Successfully
+                    </h1>
+                    <p className="text-slate-600 dark:text-slate-300">
+                      You have been securely logged out of your account.
+                    </p>
+                  </div>
 
-              <motion.div
-                variants={itemVariants}
-                className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4"
-              >
-                <p className="text-sm text-amber-800 dark:text-amber-200">
-                  You'll need to sign in again to access your dashboard and
-                  manage your links.
-                </p>
-              </motion.div>
-
-              <motion.div variants={itemVariants} className="space-y-3">
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                    onClick={handleLogout}
-                    disabled={isLoggingOut}
-                    className="w-full h-14 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-lg font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 }}
+                    className="space-y-4"
                   >
-                    {isLoggingOut ? (
-                      <div className="flex items-center space-x-2">
-                        <motion.div
-                          className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                          animate={{ rotate: 360 }}
-                          transition={{
-                            duration: 1,
-                            repeat: Infinity,
-                            ease: 'linear',
-                          }}
-                        />
-                        <span>Signing out...</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center space-x-2">
-                        <LogOut className="w-5 h-5" />
-                        <span>Yes, Sign Out</span>
-                      </div>
-                    )}
-                  </Button>
-                </motion.div>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                      Redirecting you to the home page...
+                    </p>
 
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <Button
-                    onClick={handleCancel}
-                    variant="outline"
-                    disabled={isLoggingOut}
-                    className="w-full h-12 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
-                  >
-                    Cancel
-                  </Button>
+                    <Link href="/">
+                      <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                        <Home className="w-5 h-5 mr-2" />
+                        Go to Home
+                      </Button>
+                    </Link>
+                  </motion.div>
                 </motion.div>
-              </motion.div>
-            </motion.div>
-          )}
+              ) : (
+                // Logout Confirmation
+                <motion.div
+                  className="text-center space-y-6"
+                  variants={containerVariants}
+                >
+                  <motion.div variants={itemVariants}>
+                    <div className="flex justify-center">
+                      <div className="w-16 h-16 bg-gradient-to-br from-red-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-lg">
+                        <LogOut className="w-8 h-8 text-white" />
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants}>
+                    <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+                      Sign Out
+                    </h1>
+                    <p className="text-slate-600 dark:text-slate-300 mt-2">
+                      Are you sure you want to sign out of your account?
+                    </p>
+                  </motion.div>
+
+                  <motion.div
+                    variants={itemVariants}
+                    className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4"
+                  >
+                    <p className="text-sm text-amber-800 dark:text-amber-200">
+                      You'll need to sign in again to access your dashboard and
+                      manage your links.
+                    </p>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="space-y-3">
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="w-full h-14 bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white text-lg font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoggingOut ? (
+                          <div className="flex items-center space-x-2">
+                            <motion.div
+                              className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                              animate={{ rotate: 360 }}
+                              transition={{
+                                duration: 1,
+                                repeat: Infinity,
+                                ease: 'linear',
+                              }}
+                            />
+                            <span>Signing out...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <LogOut className="w-5 h-5" />
+                            <span>Yes, Sign Out</span>
+                          </div>
+                        )}
+                      </Button>
+                    </motion.div>
+
+                    <motion.div
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <Button
+                        onClick={handleCancel}
+                        variant="outline"
+                        disabled={isLoggingOut}
+                        className="w-full h-12 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800"
+                      >
+                        Cancel
+                      </Button>
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
+              )}
+            </CardContent>
+          </Card>
         </motion.div>
 
         {/* Security Note */}

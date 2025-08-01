@@ -4,18 +4,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import {
-  Calendar,
-  Clock,
-  Lock,
-  Link2,
-  Copy,
-  CheckCircle,
-  AlertCircle,
-  Plus,
-  Minus,
-} from 'lucide-react';
+import { Link2, Copy, CheckCircle, AlertCircle } from 'lucide-react';
 import { useCreateLink, useIsCreating, useError } from '@/stores';
 import { useLinkToasts } from '@/stores/utils';
 
@@ -31,15 +20,6 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
   const [name, setName] = useState('');
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-
-  // Advanced options
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [password, setPassword] = useState('');
-  const [hasPassword, setHasPassword] = useState(false);
-  const [expiresAt, setExpiresAt] = useState('');
-  const [hasExpiry, setHasExpiry] = useState(false);
-  const [activeFrom, setActiveFrom] = useState('');
-  const [hasScheduled, setHasScheduled] = useState(false);
 
   // Current date for date/time inputs
   const now = new Date();
@@ -60,13 +40,6 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
         // Reset form
         setUrl('');
         setName('');
-        setPassword('');
-        setExpiresAt('');
-        setActiveFrom('');
-        setHasPassword(false);
-        setHasExpiry(false);
-        setHasScheduled(false);
-        setShowAdvanced(false);
 
         if (onSuccess) {
           onSuccess();
@@ -99,7 +72,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 glass border rounded-3xl p-8">
       {/* Header */}
       <motion.div
         className="text-center space-y-3"
@@ -176,150 +149,6 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
             </motion.div>
           </div>
         </div>
-
-        {/* Advanced Options Toggle */}
-        <motion.div
-          className="border-t border-slate-200 dark:border-slate-700 pt-4"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <button
-            type="button"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            className="flex items-center space-x-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
-          >
-            {showAdvanced ? (
-              <Minus className="w-4 h-4" />
-            ) : (
-              <Plus className="w-4 h-4" />
-            )}
-            <span>Advanced Options</span>
-          </button>
-        </motion.div>
-
-        {/* Advanced Options */}
-        {showAdvanced && (
-          <motion.div
-            className="space-y-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {/* Password Protection */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Switch
-                  id="has-password"
-                  checked={hasPassword}
-                  onCheckedChange={setHasPassword}
-                />
-                <div className="flex items-center space-x-2">
-                  <Lock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                  <Label htmlFor="has-password" className="text-sm font-medium">
-                    Password Protection
-                  </Label>
-                </div>
-              </div>
-              {hasPassword && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="ml-8"
-                >
-                  <Input
-                    type="password"
-                    placeholder="Enter password for link access"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={isCreating}
-                    className="h-10 bg-white dark:bg-slate-700"
-                  />
-                </motion.div>
-              )}
-            </div>
-
-            {/* Scheduled Activation */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Switch
-                  id="has-scheduled"
-                  checked={hasScheduled}
-                  onCheckedChange={setHasScheduled}
-                />
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                  <Label
-                    htmlFor="has-scheduled"
-                    className="text-sm font-medium"
-                  >
-                    Scheduled Activation
-                  </Label>
-                </div>
-              </div>
-              {hasScheduled && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="ml-8 space-y-2"
-                >
-                  <Label className="text-xs text-slate-600 dark:text-slate-400">
-                    Link becomes active at:
-                  </Label>
-                  <Input
-                    type="datetime-local"
-                    value={activeFrom}
-                    onChange={(e) => setActiveFrom(e.target.value)}
-                    min={formatDateTimeLocal(now)}
-                    disabled={isCreating}
-                    className="h-10 bg-white dark:bg-slate-700"
-                  />
-                </motion.div>
-              )}
-            </div>
-
-            {/* Expiry Date */}
-            <div className="space-y-3">
-              <div className="flex items-center space-x-3">
-                <Switch
-                  id="has-expiry"
-                  checked={hasExpiry}
-                  onCheckedChange={setHasExpiry}
-                />
-                <div className="flex items-center space-x-2">
-                  <Calendar className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                  <Label htmlFor="has-expiry" className="text-sm font-medium">
-                    Expiry Date
-                  </Label>
-                </div>
-              </div>
-              {hasExpiry && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="ml-8 space-y-2"
-                >
-                  <Label className="text-xs text-slate-600 dark:text-slate-400">
-                    Link expires at:
-                  </Label>
-                  <Input
-                    type="datetime-local"
-                    value={expiresAt}
-                    onChange={(e) => setExpiresAt(e.target.value)}
-                    min={
-                      hasScheduled && activeFrom
-                        ? activeFrom
-                        : formatDateTimeLocal(now)
-                    }
-                    disabled={isCreating}
-                    className="h-10 bg-white dark:bg-slate-700"
-                  />
-                </motion.div>
-              )}
-            </div>
-          </motion.div>
-        )}
 
         {/* Error Message */}
         {error && (

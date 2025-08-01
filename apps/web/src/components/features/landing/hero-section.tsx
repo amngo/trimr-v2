@@ -6,9 +6,9 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Link2, Zap, Shield, BarChart3 } from 'lucide-react';
+import { ArrowRight, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LinkForm, LinkCreationSheet } from '@/components';
+import { LinkForm } from '@/components';
 import {
   StaggerContainer,
   SlideUp,
@@ -28,36 +28,12 @@ const statItems = [
   { value: '99.9%', label: 'Uptime' },
 ] as const;
 
-const floatingIcons = [
-  {
-    icon: Zap,
-    position: 'top-1/4 right-1/4',
-    size: 'w-16 h-16',
-    gradient: 'from-blue-500 to-purple-600',
-    delay: 0,
-  },
-  {
-    icon: Shield,
-    position: 'bottom-1/3 left-1/4',
-    size: 'w-12 h-12',
-    gradient: 'from-green-500 to-blue-500',
-    delay: 1,
-  },
-  {
-    icon: BarChart3,
-    position: 'top-1/2 left-1/6',
-    size: 'w-14 h-14',
-    gradient: 'from-purple-500 to-pink-500',
-    delay: 2,
-  },
-] as const;
-
 /**
  * Main hero section component
  */
-export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
+export function HeroSection({ onLinkCreated }: HeroSectionProps) {
   const { isAuthenticated } = useAuth();
-  
+
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Animated background */}
@@ -84,14 +60,28 @@ export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
               <span className="text-xl font-bold">trimr</span>
             </motion.div>
 
-            <StaggerContainer className="hidden md:flex items-center space-x-8">
-              <NavigationLink href="#features">Features</NavigationLink>
-              {isAuthenticated && (
-                <Link href="/dashboard">
-                  <NavigationLink as="span">Dashboard</NavigationLink>
+            <StaggerContainer className="hidden md:flex items-center space-x-4">
+              {!isAuthenticated && (
+                <Link href="/login">
+                  <Button variant="outline" className="hidden md:inline-flex">
+                    Login
+                  </Button>
                 </Link>
               )}
-              <NavigationLink href="#pricing">Pricing</NavigationLink>
+
+              {isAuthenticated && (
+                <>
+                  <Link href="/dashboard">
+                    <Button className="hidden md:inline-flex">Dashboard</Button>
+                  </Link>
+
+                  <Link href="/logout">
+                    <Button variant="outline" className="hidden md:inline-flex">
+                      Logout
+                    </Button>
+                  </Link>
+                </>
+              )}
             </StaggerContainer>
           </nav>
         </FadeIn>
@@ -102,26 +92,21 @@ export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
             {/* Left Column - Text Content */}
             <StaggerContainer className="space-y-8">
               <SlideUp delay={0.4} className="space-y-6">
-                <motion.div
-                  className="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full"
-                  whileHover={{ scale: 1.05 }}
-                >
-                  <span className="text-blue-600 dark:text-blue-400 text-sm font-medium">
+                <div className="inline-block px-4 py-2 glass border rounded-full">
+                  <span className="text-sm font-medium">
                     ✨ Transform Long URLs Instantly
                   </span>
-                </motion.div>
+                </div>
 
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                  <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-slate-100 dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                    Shorten URLs
-                  </span>
+                  Shorten URLs
                   <br />
-                  <span className="text-slate-600 dark:text-slate-300">
+                  <span className="bg-gradient-to-r dark:from-sky-500 dark:via-blue-500 dark:to-purple-500 bg-clip-text text-transparent">
                     Beautifully
                   </span>
                 </h1>
 
-                <p className="text-xl text-slate-600 dark:text-slate-300 leading-relaxed max-w-lg">
+                <p className="text-xl leading-relaxed max-w-lg">
                   Transform your long URLs into elegant, shareable links with
                   our powerful URL shortener. Track clicks, manage links, and
                   gain insights with our beautiful dashboard.
@@ -129,33 +114,19 @@ export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
               </SlideUp>
 
               <SlideUp delay={0.6} className="flex flex-col sm:flex-row gap-4">
-                <LinkCreationSheet onSuccess={onLinkCreated}>
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <Button
-                      size="lg"
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg"
-                    >
-                      Get Started Free
-                      <ArrowRight className="ml-2 w-5 h-5" />
-                    </Button>
-                  </motion.div>
-                </LinkCreationSheet>
-
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
+                <Link href="/register">
                   <Button
-                    variant="outline"
                     size="lg"
-                    className="px-8 py-4 text-lg"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                   >
-                    View Demo
+                    Get Started Free
+                    <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
-                </motion.div>
+                </Link>
+
+                <Button variant="outline" size="lg">
+                  View Demo
+                </Button>
               </SlideUp>
 
               {/* Stats */}
@@ -175,43 +146,12 @@ export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
 
             {/* Right Column - Link Form */}
             <SlideUp delay={0.6} className="lg:pl-8">
-              <motion.div
-                className="glass border rounded-3xl p-8"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <LinkForm onSuccess={onLinkCreated} />
-              </motion.div>
+              <LinkForm onSuccess={onLinkCreated} />
             </SlideUp>
           </div>
         </div>
       </div>
     </div>
-  );
-}
-
-/**
- * Navigation link component with hover effects
- */
-function NavigationLink({
-  href,
-  children,
-  as = 'a',
-}: {
-  href?: string;
-  children: React.ReactNode;
-  as?: 'a' | 'span';
-}) {
-  const Component = as === 'span' ? motion.span : motion.a;
-
-  return (
-    <Component
-      href={href}
-      className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors cursor-pointer"
-      whileHover={{ scale: 1.05 }}
-    >
-      {children}
-    </Component>
   );
 }
 

@@ -264,14 +264,12 @@ export function LinksDashboard() {
         <CardContent>
           <div className="text-center py-12">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center">
+              <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center">
                 <Eye className="w-8 h-8 text-slate-400" />
               </div>
             </div>
-            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-2">
-              No links created yet
-            </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-4">
+            <h3 className="text-lg font-medium mb-2">No links created yet</h3>
+            <p className="text-muted-foreground mb-4">
               Create your first short link using the form above!
             </p>
           </div>
@@ -301,19 +299,19 @@ export function LinksDashboard() {
             {/* Summary Stats */}
             <div className="flex space-x-4 text-sm">
               <div className="text-center">
-                <div className="font-semibold text-green-600 dark:text-green-400">
+                <div className="font-semiboldtext-green-400">
                   {links.filter((l) => l.isActive && !l.isExpired).length}
                 </div>
                 <div className="text-slate-500">Active</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-blue-600 dark:text-blue-400">
+                <div className="font-semiboldtext-blue-400">
                   {links.reduce((sum, l) => sum + l.clicks, 0)}
                 </div>
                 <div className="text-slate-500">Total Clicks</div>
               </div>
               <div className="text-center">
-                <div className="font-semibold text-purple-600 dark:text-purple-400">
+                <div className="font-semiboldtext-purple-400">
                   {links.reduce((sum, l) => sum + l.uniqueClicks, 0)}
                 </div>
                 <div className="text-slate-500">Unique Clicks</div>
@@ -322,10 +320,10 @@ export function LinksDashboard() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
+          <div className="rounded-lg border border-white/20 overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-slate-50 dark:bg-slate-800/50">
+                <TableRow className="bg-slate-800/50">
                   <TableHead className="font-semibold">Link Details</TableHead>
                   <TableHead className="font-semibold">Status</TableHead>
                   <TableHead className="font-semibold text-center">
@@ -344,7 +342,7 @@ export function LinksDashboard() {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                    className="group hover:bg-slate-800/50 transition-colors"
                   >
                     <TableCell className="space-y-2">
                       <div className="space-y-1">
@@ -355,20 +353,20 @@ export function LinksDashboard() {
                             className="flex-shrink-0"
                           />
                           <div className="flex-1 min-w-0">
-                            <div className="font-medium text-slate-900 dark:text-slate-100 truncate">
+                            <div className="font-medium text-slate-100 truncate">
                               {link.name || (
                                 <span className="text-slate-500 italic">
                                   Untitled Link
                                 </span>
                               )}
                             </div>
-                            <div className="text-xs text-slate-500 truncate">
+                            <div className="text-xs text-muted-foreground truncate">
                               {link.original}
                             </div>
                           </div>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <code className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono text-blue-600 dark:text-blue-400">
+                          <code className="px-2 py-1 bg-slate-800 rounded text-xs font-mono text-blue-400">
                             {link.shortUrl}
                           </code>
                           <div className="flex space-x-1">
@@ -389,12 +387,12 @@ export function LinksDashboard() {
                           </div>
                           <div className="flex items-center space-x-1">
                             <Users className="w-4 h-4 text-slate-500" />
-                            <span className="font-medium text-purple-600 dark:text-purple-400">
+                            <span className="font-medium text-purple-400">
                               {link.uniqueClicks}
                             </span>
                           </div>
                         </div>
-                        <div className="text-xs text-slate-500">
+                        <div className="text-xs text-muted-foreground">
                           {link.uniqueClicks > 0
                             ? `${Math.round((link.uniqueClicks / link.clicks) * 100)}% unique`
                             : 'No clicks yet'}
@@ -403,17 +401,17 @@ export function LinksDashboard() {
                     </TableCell>
 
                     <TableCell className="space-y-1">
-                      <div className="text-sm space-y-1">
-                        <div className="text-slate-600 dark:text-slate-400">
+                      <div className="text-xs space-y-1">
+                        <div className="text-muted-foreground">
                           Created: {formatDate(link.createdAt)}
                         </div>
                         {link.activeFrom && (
-                          <div className="text-blue-600 dark:text-blue-400 text-xs">
+                          <div className="text-blue-400">
                             Active: {formatDate(link.activeFrom)}
                           </div>
                         )}
                         {link.expiresAt && (
-                          <div className="text-amber-600 dark:text-amber-400 text-xs">
+                          <div className="text-amber-400">
                             Expires: {formatDate(link.expiresAt)}
                           </div>
                         )}
@@ -440,7 +438,7 @@ export function LinksDashboard() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="hover:bg-slate-50 dark:hover:bg-slate-800"
+                              className="hover:bg-slate-800"
                             >
                               <MoreHorizontal className="w-4 h-4" />
                             </Button>
@@ -469,7 +467,7 @@ export function LinksDashboard() {
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem
-                                  className="text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+                                  className="text-red-400 focus:text-red-400"
                                   onSelect={(e) => e.preventDefault()}
                                 >
                                   <Trash2 className="w-4 h-4 mr-2" />
@@ -492,7 +490,7 @@ export function LinksDashboard() {
                                   <AlertDialogAction
                                     onClick={() => handleDeleteLink(link.id)}
                                     disabled={deletingLinkId === link.id}
-                                    className="bg-red-600 hover:bg-red-700 dark:bg-red-600 dark:hover:bg-red-700"
+                                    className="bg-red-600 hover:bg-red-700"
                                   >
                                     {deletingLinkId === link.id
                                       ? 'Deleting...'

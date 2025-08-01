@@ -1,14 +1,19 @@
-"use client";
-
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { checkLinkAccess } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
+'use client';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { checkLinkAccess } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Aurora } from '@/components/effects';
 
 interface PasswordPromptProps {
   slug: string;
@@ -16,8 +21,12 @@ interface PasswordPromptProps {
   onCancel?: () => void;
 }
 
-export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProps) {
-  const [password, setPassword] = useState("");
+export function PasswordPrompt({
+  slug,
+  onSuccess,
+  onCancel,
+}: PasswordPromptProps) {
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -29,28 +38,30 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
 
     try {
       const response = await checkLinkAccess(slug, password);
-      
+
       if (response.passwordValid && response.originalUrl) {
         onSuccess(response.originalUrl);
       } else {
-        setError("Invalid password. Please try again.");
+        setError('Invalid password. Please try again.');
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to verify password");
+      setError(
+        err instanceof Error ? err.message : 'Failed to verify password',
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 relative">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.3 }}
         className="w-full max-w-md"
       >
-        <Card className="shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+        <Card>
           <CardHeader className="text-center space-y-4">
             <motion.div
               className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
@@ -59,7 +70,7 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
             >
               <Lock className="w-8 h-8 text-white" />
             </motion.div>
-            
+
             <div>
               <CardTitle className="text-2xl font-bold text-slate-900 dark:text-slate-100">
                 Password Protected Link
@@ -73,13 +84,16 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-medium text-slate-700 dark:text-slate-300"
+                >
                   Password
                 </Label>
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     placeholder="Enter password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -108,7 +122,9 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
                   className="flex items-center space-x-2 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl"
                 >
                   <AlertCircle className="w-5 h-5 text-red-500" />
-                  <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                  <p className="text-sm text-red-700 dark:text-red-300">
+                    {error}
+                  </p>
                 </motion.div>
               )}
 
@@ -118,8 +134,8 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     className="w-full h-12 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={loading}
                   >
@@ -128,7 +144,11 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
                         <motion.div
                           className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                           animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                          transition={{
+                            duration: 1,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
                         />
                         <span>Checking...</span>
                       </div>
@@ -140,13 +160,13 @@ export function PasswordPrompt({ slug, onSuccess, onCancel }: PasswordPromptProp
                     )}
                   </Button>
                 </motion.div>
-                
+
                 {onCancel && (
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <Button 
+                    <Button
                       type="button"
                       variant="outline"
                       onClick={onCancel}

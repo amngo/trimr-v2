@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link2, BarChart3, Plus, TrendingUp, MousePointer } from 'lucide-react';
@@ -74,23 +75,18 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen relative bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+    <div className="min-h-screen relative bg-slate-900">
       {/* Header */}
       <motion.div
-        className="border-b bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl shadow-sm"
+        className="border-b glass"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="container mx-auto px-6 py-6">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-slate-100 dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
-                Dashboard
-              </h1>
-              <p className="text-slate-600 dark:text-slate-300 mt-1">
-                Welcome back, {user?.email}! Here's your link overview.
-              </p>
+              <h1 className="text-xl font-bold">Dashboard</h1>
             </div>
 
             <LinkCreationSheet>
@@ -98,8 +94,11 @@ export default function DashboardPage() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg h-12 px-6">
-                  <Plus className="w-5 h-5 mr-2" />
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                >
+                  <Plus className="w-5 h-5" />
                   Create Link
                 </Button>
               </motion.div>
@@ -117,41 +116,33 @@ export default function DashboardPage() {
           animate="visible"
         >
           <motion.div variants={itemVariants}>
-            <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-shadow">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  Total Links
-                </CardTitle>
+                <CardTitle>Total Links</CardTitle>
                 <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
                   <Link2 className="h-4 w-4 text-white" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {links.length}
-                </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  Links created
-                </p>
+                <div className="text-2xl font-bold">{links.length}</div>
+                <p className="text-xs text-muted-foreground">Links created</p>
               </CardContent>
             </Card>
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-shadow">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  Total Clicks
-                </CardTitle>
+                <CardTitle>Total Clicks</CardTitle>
                 <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                   <MousePointer className="h-4 w-4 text-white" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                <div className="text-2xl font-bold">
                   {totalClicks.toLocaleString()}
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-xs text-muted-foreground">
                   Across all links
                 </p>
               </CardContent>
@@ -159,20 +150,16 @@ export default function DashboardPage() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-shadow">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  Active Links
-                </CardTitle>
+                <CardTitle>Active Links</CardTitle>
                 <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center">
                   <TrendingUp className="h-4 w-4 text-white" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  {activeLinks}
-                </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
+                <div className="text-2xl font-bold">{activeLinks}</div>
+                <p className="text-xs text-muted-foreground">
                   With at least 1 click
                 </p>
               </CardContent>
@@ -180,58 +167,26 @@ export default function DashboardPage() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-white/20 dark:border-slate-700/50 shadow-lg hover:shadow-xl transition-shadow">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
-                  Avg. Clicks
-                </CardTitle>
+                <CardTitle>Avg. Clicks</CardTitle>
                 <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg flex items-center justify-center">
                   <BarChart3 className="h-4 w-4 text-white" />
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+                <div className="text-2xl font-bold">
                   {links.length > 0
                     ? Math.round(totalClicks / links.length)
                     : 0}
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400">
-                  Per link
-                </p>
+                <p className="text-xs text-muted-foreground">Per link</p>
               </CardContent>
             </Card>
           </motion.div>
         </motion.div>
 
         <LinksDashboard />
-      </div>
-
-      {/* Animated background elements */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <motion.div
-          className="absolute top-20 left-20 w-72 h-72 bg-blue-400/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.1, 0.2, 0.1],
-          }}
-          transition={{
-            duration: 8,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
-        <motion.div
-          className="absolute bottom-20 right-20 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            opacity: [0.1, 0.15, 0.1],
-          }}
-          transition={{
-            duration: 10,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        />
       </div>
     </div>
   );
