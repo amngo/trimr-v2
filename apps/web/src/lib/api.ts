@@ -1,193 +1,226 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api';
+import { 
+  Link, 
+  CreateLinkRequest, 
+  CreateLinkResponse, 
+  UpdateLinkRequest,
+  User, 
+  RegisterRequest, 
+  LoginRequest, 
+  AuthResponse,
+  AccessLinkRequest,
+  AccessLinkResponse,
+  AppError
+} from '@/types'
+import { API_CONFIG, AUTH_CONFIG, ROUTES } from '@/lib/constants'
+import { handleApiError, safeLocalStorage, delay } from '@/lib/utils'
 
-export interface Link {
-  id: string;
-  name?: string;
-  slug: string;
-  original: string;
-  clicks: number;
-  createdAt: string;
-  lastUpdated: string;
-  expiresAt?: string;
-  activeFrom?: string;
-  shortUrl: string;
-  uniqueClicks: number;
-  isActive: boolean;
-  isExpired: boolean;
-}
+/**
+ * Enhanced API client with better error handling, retries, and type safety
+ */
+class ApiClient {
+  private baseUrl: string
+  private timeout: number
+  private retryAttempts: number
+  private retryDelay: number
 
-export interface CreateLinkRequest {
-  url: string;
-  name?: string;
-  expiresAt?: string;
-  activeFrom?: string;
-  password?: string;
-}
-
-export interface CreateLinkResponse {
-  shortUrl: string;
-  slug: string;
-}
-
-export interface User {
-  id: string;
-  email: string;
-  createdAt: string;
-}
-
-export interface RegisterRequest {
-  email: string;
-  password: string;
-}
-
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-export interface AuthResponse {
-  token: string;
-  user: User;
-}
-
-// Token management
-export function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('auth_token');
-}
-
-export function setToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem('auth_token', token);
-}
-
-export function removeToken(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem('auth_token');
-}
-
-function getAuthHeaders(): HeadersInit {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-  
-  const token = getToken();
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  constructor() {
+    this.baseUrl = API_CONFIG.BASE_URL
+    this.timeout = API_CONFIG.TIMEOUT
+    this.retryAttempts = API_CONFIG.RETRY_ATTEMPTS
+    this.retryDelay = API_CONFIG.RETRY_DELAY
   }
-  
-  return headers;
-}
 
-// Authentication functions
-export async function register(data: RegisterRequest): Promise<AuthResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: {
+  /**
+   * Get authentication token from storage
+   */
+  private getToken(): string | null {
+    return safeLocalStorage().getItem(AUTH_CONFIG.TOKEN_KEY)
+  }
+
+  /**
+   * Set authentication token in storage
+   */
+  private setToken(token: string): void {
+    safeLocalStorage().setItem(AUTH_CONFIG.TOKEN_KEY, token)
+  }
+
+  /**
+   * Remove authentication token from storage
+   */
+  private removeToken(): void {
+    safeLocalStorage().removeItem(AUTH_CONFIG.TOKEN_KEY)
+  }
+
+  /**
+   * Get headers for API requests
+   */
+  private getHeaders(): HeadersInit {
+    const headers: HeadersInit = {
       'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to register');
+    }
+    
+    const token = this.getToken()
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+    
+    return headers
   }
 
-  const authResponse = await response.json();
-  setToken(authResponse.token);
-  return authResponse;
-}
+  /**
+   * Make HTTP request with retry logic and error handling
+   */
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`
+    const config: RequestInit = {
+      ...options,
+      headers: {
+        ...this.getHeaders(),
+        ...options.headers,
+      },
+    }
 
-export async function login(data: LoginRequest): Promise<AuthResponse> {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
+    let lastError: Error | null = null
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to login');
+    for (let attempt = 1; attempt <= this.retryAttempts; attempt++) {
+      try {
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), this.timeout)
+
+        const response = await fetch(url, {
+          ...config,
+          signal: controller.signal,
+        })
+
+        clearTimeout(timeoutId)
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+          throw new AppError(
+            errorData.error || `HTTP ${response.status}`,
+            'HTTP_ERROR',
+            response.status,
+            { url, attempt }
+          )
+        }
+
+        // Handle empty responses
+        const contentType = response.headers.get('content-type')
+        if (contentType?.includes('application/json')) {
+          return await response.json()
+        }
+        
+        return {} as T
+      } catch (error) {
+        lastError = error as Error
+
+        // Don't retry on certain errors
+        if (error instanceof AppError && error.statusCode && error.statusCode < 500) {
+          throw handleApiError(error)
+        }
+
+        if (attempt < this.retryAttempts) {
+          await delay(this.retryDelay * attempt) // Exponential backoff
+          continue
+        }
+      }
+    }
+
+    throw handleApiError(lastError)
   }
 
-  const authResponse = await response.json();
-  setToken(authResponse.token);
-  return authResponse;
-}
+  // Authentication methods
+  async register(data: RegisterRequest): Promise<AuthResponse> {
+    const response = await this.request<AuthResponse>(ROUTES.API.AUTH.REGISTER, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
 
-export async function logout(): Promise<void> {
-  removeToken();
-}
-
-export async function getProfile(): Promise<User> {
-  const response = await fetch(`${API_BASE_URL}/auth/profile`, {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch profile');
+    this.setToken(response.token)
+    return response
   }
 
-  return response.json();
-}
+  async login(data: LoginRequest): Promise<AuthResponse> {
+    const response = await this.request<AuthResponse>(ROUTES.API.AUTH.LOGIN, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
 
-// Link functions
-export async function createLink(data: CreateLinkRequest): Promise<CreateLinkResponse> {
-  const response = await fetch(`${API_BASE_URL}/links`, {
-    method: 'POST',
-    headers: getAuthHeaders(),
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to create link');
+    this.setToken(response.token)
+    return response
   }
 
-  return response.json();
-}
-
-export async function getLinks(): Promise<Link[]> {
-  const response = await fetch(`${API_BASE_URL}/links`, {
-    method: 'GET',
-    headers: getAuthHeaders(),
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch links');
+  async logout(): Promise<void> {
+    try {
+      await this.request(ROUTES.API.AUTH.LOGOUT, { method: 'POST' })
+    } finally {
+      this.removeToken()
+    }
   }
 
-  return response.json();
-}
-
-export interface AccessLinkRequest {
-  password?: string;
-}
-
-export interface AccessLinkResponse {
-  slug: string;
-  passwordRequired: boolean;
-  passwordValid?: boolean;
-  originalUrl?: string;
-}
-
-export async function checkLinkAccess(slug: string, password?: string): Promise<AccessLinkResponse> {
-  const response = await fetch(`${API_BASE_URL}/links/${slug}/access`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ password }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to check link access');
+  async getProfile(): Promise<User> {
+    return this.request<User>(ROUTES.API.AUTH.PROFILE)
   }
 
-  return response.json();
+  // Link methods
+  async createLink(data: CreateLinkRequest): Promise<CreateLinkResponse> {
+    return this.request<CreateLinkResponse>(ROUTES.API.LINKS.CREATE, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async getLinks(): Promise<Link[]> {
+    return this.request<Link[]>(ROUTES.API.LINKS.LIST)
+  }
+
+  async getLink(id: string): Promise<Link> {
+    return this.request<Link>(ROUTES.API.LINKS.GET(id))
+  }
+
+  async updateLink(id: string, data: UpdateLinkRequest): Promise<Link> {
+    return this.request<Link>(ROUTES.API.LINKS.UPDATE(id), {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    })
+  }
+
+  async deleteLink(id: string): Promise<void> {
+    return this.request<void>(ROUTES.API.LINKS.DELETE(id), {
+      method: 'DELETE',
+    })
+  }
+
+  async checkLinkAccess(slug: string, password?: string): Promise<AccessLinkResponse> {
+    return this.request<AccessLinkResponse>(ROUTES.API.LINKS.ACCESS(slug), {
+      method: 'POST',
+      body: JSON.stringify({ password }),
+    })
+  }
 }
+
+// Create singleton instance
+const apiClient = new ApiClient()
+
+// Export individual methods for backward compatibility
+export const getToken = () => apiClient['getToken']()
+export const setToken = (token: string) => apiClient['setToken'](token)
+export const removeToken = () => apiClient['removeToken']()
+
+export const register = (data: RegisterRequest) => apiClient.register(data)
+export const login = (data: LoginRequest) => apiClient.login(data)
+export const logout = () => apiClient.logout()
+export const getProfile = () => apiClient.getProfile()
+
+export const createLink = (data: CreateLinkRequest) => apiClient.createLink(data)
+export const getLinks = () => apiClient.getLinks()
+export const getLink = (id: string) => apiClient.getLink(id)
+export const updateLink = (id: string, data: UpdateLinkRequest) => apiClient.updateLink(id, data)
+export const deleteLink = (id: string) => apiClient.deleteLink(id)
+export const checkLinkAccess = (slug: string, password?: string) => apiClient.checkLinkAccess(slug, password)
+
+// Export the client instance for advanced usage
+export default apiClient

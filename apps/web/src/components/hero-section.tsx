@@ -1,51 +1,64 @@
+/**
+ * Hero section component with animated elements and link creation form
+ */
+
 'use client';
 
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Link2, Zap, Shield, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LinkForm } from '@/components/link-form';
 import { LinkCreationSheet } from '@/components/link-creation-sheet';
+import {
+  StaggerContainer,
+  SlideUp,
+  FadeIn,
+} from '@/components/common/animated-container';
 import Aurora from './background/aurora';
+import { BaseComponentProps } from '@/types';
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      delayChildren: 0.3,
-      staggerChildren: 0.2,
-    },
+interface HeroSectionProps extends BaseComponentProps {
+  onLinkCreated?: () => void;
+}
+
+const statItems = [
+  { value: '1M+', label: 'Links Created' },
+  { value: '50K+', label: 'Active Users' },
+  { value: '99.9%', label: 'Uptime' },
+] as const;
+
+const floatingIcons = [
+  {
+    icon: Zap,
+    position: 'top-1/4 right-1/4',
+    size: 'w-16 h-16',
+    gradient: 'from-blue-500 to-purple-600',
+    delay: 0,
   },
-};
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1,
-    transition: {
-      duration: 0.5,
-      ease: 'easeOut' as const,
-    },
+  {
+    icon: Shield,
+    position: 'bottom-1/3 left-1/4',
+    size: 'w-12 h-12',
+    gradient: 'from-green-500 to-blue-500',
+    delay: 1,
   },
-};
-
-const floatingVariants = {
-  animate: {
-    y: [-10, 10, -10],
-    transition: {
-      duration: 4,
-      repeat: Infinity,
-      ease: 'easeInOut' as const,
-    },
+  {
+    icon: BarChart3,
+    position: 'top-1/2 left-1/6',
+    size: 'w-14 h-14',
+    gradient: 'from-purple-500 to-pink-500',
+    delay: 2,
   },
-};
+] as const;
 
-export function HeroSection() {
+/**
+ * Main hero section component
+ */
+export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Animated background elements */}
+      {/* Animated background */}
       <div className="absolute inset-0">
         <Aurora
           colorStops={['#0ea5e9', '#3b82f6', '#8b5cf6']}
@@ -57,67 +70,34 @@ export function HeroSection() {
 
       <div className="relative z-10">
         {/* Navigation */}
-        <motion.nav
-          className="flex items-center justify-between px-6 py-4 mx-12 mt-8 bg-white/10 backdrop-blur-xl rounded-lg border border-white/20"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-        >
-          <motion.div
-            className="flex items-center space-x-2"
-            whileHover={{ scale: 1.05 }}
-          >
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-              <Link2 className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold">trimr</span>
-          </motion.div>
+        <FadeIn delay={0.2}>
+          <nav className="flex items-center justify-between px-6 py-4 mx-12 mt-8 bg-white/10 backdrop-blur-xl rounded-lg border border-white/20">
+            <motion.div
+              className="flex items-center space-x-2"
+              whileHover={{ scale: 1.05 }}
+            >
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Link2 className="w-5 h-5 text-white" />
+              </div>
+              <span className="text-xl font-bold">trimr</span>
+            </motion.div>
 
-          <motion.div
-            className="hidden md:flex items-center space-x-8"
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <motion.a
-              href="#features"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-            >
-              Features
-            </motion.a>
-            <Link href="/dashboard">
-              <motion.span
-                className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors cursor-pointer"
-                variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
-              >
-                Dashboard
-              </motion.span>
-            </Link>
-            <motion.a
-              href="#pricing"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-            >
-              Pricing
-            </motion.a>
-          </motion.div>
-        </motion.nav>
+            <StaggerContainer className="hidden md:flex items-center space-x-8">
+              <NavigationLink href="#features">Features</NavigationLink>
+              <Link href="/dashboard">
+                <NavigationLink as="span">Dashboard</NavigationLink>
+              </Link>
+              <NavigationLink href="#pricing">Pricing</NavigationLink>
+            </StaggerContainer>
+          </nav>
+        </FadeIn>
 
         {/* Hero Content */}
-        <motion.div
-          className="container mx-auto px-6 md:px-8 py-20 md:py-32"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <div className="container mx-auto px-6 md:px-8 py-20 md:py-32">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Left Column - Text Content */}
-            <div className="space-y-8">
-              <motion.div variants={itemVariants} className="space-y-6">
+            <StaggerContainer className="space-y-8">
+              <SlideUp delay={0.4} className="space-y-6">
                 <motion.div
                   className="inline-block px-4 py-2 bg-blue-100 dark:bg-blue-900/30 rounded-full"
                   whileHover={{ scale: 1.05 }}
@@ -142,13 +122,10 @@ export function HeroSection() {
                   our powerful URL shortener. Track clicks, manage links, and
                   gain insights with our beautiful dashboard.
                 </p>
-              </motion.div>
+              </SlideUp>
 
-              <motion.div
-                variants={itemVariants}
-                className="flex flex-col sm:flex-row gap-4"
-              >
-                <LinkCreationSheet onSuccess={() => {}}>
+              <SlideUp delay={0.6} className="flex flex-col sm:flex-row gap-4">
+                <LinkCreationSheet onSuccess={onLinkCreated}>
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -162,6 +139,7 @@ export function HeroSection() {
                     </Button>
                   </motion.div>
                 </LinkCreationSheet>
+
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -174,53 +152,75 @@ export function HeroSection() {
                     View Demo
                   </Button>
                 </motion.div>
-              </motion.div>
+              </SlideUp>
 
               {/* Stats */}
-              <motion.div
-                variants={itemVariants}
+              <SlideUp
+                delay={0.8}
                 className="grid grid-cols-3 gap-8 pt-8 border-t border-slate-200 dark:border-slate-700"
               >
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                    1M+
-                  </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">
-                    Links Created
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                    50K+
-                  </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">
-                    Active Users
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                    99.9%
-                  </div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400">
-                    Uptime
-                  </div>
-                </div>
-              </motion.div>
-            </div>
+                {statItems.map((stat) => (
+                  <StatItem
+                    key={stat.label}
+                    value={stat.value}
+                    label={stat.label}
+                  />
+                ))}
+              </SlideUp>
+            </StaggerContainer>
 
             {/* Right Column - Link Form */}
-            <motion.div variants={itemVariants} className="lg:pl-8">
+            <SlideUp delay={0.6} className="lg:pl-8">
               <motion.div
                 className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
               >
-                <LinkForm onSuccess={() => {}} />
+                <LinkForm onSuccess={onLinkCreated} />
               </motion.div>
-            </motion.div>
+            </SlideUp>
           </div>
-        </motion.div>
+        </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Navigation link component with hover effects
+ */
+function NavigationLink({
+  href,
+  children,
+  as = 'a',
+}: {
+  href?: string;
+  children: React.ReactNode;
+  as?: 'a' | 'span';
+}) {
+  const Component = as === 'span' ? motion.span : motion.a;
+
+  return (
+    <Component
+      href={href}
+      className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors cursor-pointer"
+      whileHover={{ scale: 1.05 }}
+    >
+      {children}
+    </Component>
+  );
+}
+
+/**
+ * Statistics item component
+ */
+function StatItem({ value, label }: { value: string; label: string }) {
+  return (
+    <div className="text-center">
+      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+        {value}
+      </div>
+      <div className="text-sm text-slate-600 dark:text-slate-400">{label}</div>
     </div>
   );
 }
