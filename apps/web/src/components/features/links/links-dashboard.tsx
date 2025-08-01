@@ -18,6 +18,7 @@ import {
 import { useLinkToasts } from '@/stores/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Favicon } from '@/components/ui/favicon';
 import {
   Table,
   TableBody,
@@ -161,7 +162,7 @@ export function LinksDashboard() {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="glass">
         <CardHeader>
           <CardTitle>Your Links</CardTitle>
           <CardDescription>Manage your shortened links</CardDescription>
@@ -196,7 +197,7 @@ export function LinksDashboard() {
 
   if (links.length === 0) {
     return (
-      <Card>
+      <Card className="glass">
         <CardHeader>
           <CardTitle>Your Links</CardTitle>
           <CardDescription>Manage your shortened links</CardDescription>
@@ -226,7 +227,7 @@ export function LinksDashboard() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      <Card>
+      <Card className="glass">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -288,12 +289,24 @@ export function LinksDashboard() {
                   >
                     <TableCell className="space-y-2">
                       <div className="space-y-1">
-                        <div className="font-medium text-slate-900 dark:text-slate-100">
-                          {link.name || (
-                            <span className="text-slate-500 italic">
-                              Untitled Link
-                            </span>
-                          )}
+                        <div className="flex items-center space-x-3">
+                          <Favicon
+                            url={link.original}
+                            size="md"
+                            className="flex-shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-slate-900 dark:text-slate-100 truncate">
+                              {link.name || (
+                                <span className="text-slate-500 italic">
+                                  Untitled Link
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-xs text-slate-500 truncate">
+                              {link.original}
+                            </div>
+                          </div>
                         </div>
                         <div className="flex items-center space-x-2">
                           <code className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs font-mono text-blue-600 dark:text-blue-400">

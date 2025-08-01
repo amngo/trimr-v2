@@ -34,6 +34,7 @@ export interface Link {
   isActive: boolean;
   isExpired: boolean;
   userId?: string;
+  faviconUrl?: string;
 }
 
 export interface CreateLinkRequest {

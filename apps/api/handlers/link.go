@@ -78,6 +78,13 @@ func CreateLink(c *gin.Context) {
 		hashedPassword = &hashStr
 	}
 
+	// Fetch favicon URL for the original URL
+	faviconURL := utils.FetchFaviconURL(req.URL)
+	var faviconPtr *string
+	if faviconURL != "" {
+		faviconPtr = &faviconURL
+	}
+
 	// Create the link
 	link = models.Link{
 		ID:          uuid.New(),
@@ -91,14 +98,15 @@ func CreateLink(c *gin.Context) {
 		ActiveFrom:  req.ActiveFrom,
 		Password:    hashedPassword,
 		UserID:      userID,
+		FaviconURL:  faviconPtr,
 	}
 
 	query := `
-		INSERT INTO links (id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, password, user_id)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+		INSERT INTO links (id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, password, user_id, favicon_url)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
 	`
 
-	_, err := db.DB.Exec(query, link.ID, link.Name, link.Slug, link.Original, link.Clicks, link.CreatedAt, link.LastUpdated, link.ExpiresAt, link.ActiveFrom, link.Password, link.UserID)
+	_, err := db.DB.Exec(query, link.ID, link.Name, link.Slug, link.Original, link.Clicks, link.CreatedAt, link.LastUpdated, link.ExpiresAt, link.ActiveFrom, link.Password, link.UserID, link.FaviconURL)
 	if err != nil {
 		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code == "23505" {
 			c.JSON(http.StatusConflict, gin.H{"error": "Slug already exists"})
@@ -219,7 +227,7 @@ func GetLinks(c *gin.Context) {
 	if userID != nil {
 		// If authenticated, show only user's links
 		query = `
-			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id
+			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id, favicon_url
 			FROM links
 			WHERE user_id = $1
 			ORDER BY created_at DESC
@@ -228,7 +236,7 @@ func GetLinks(c *gin.Context) {
 	} else {
 		// If not authenticated, show only anonymous links (for backward compatibility)
 		query = `
-			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id
+			SELECT id, name, slug, original, clicks, created_at, last_updated, expires_at, active_from, user_id, favicon_url
 			FROM links
 			WHERE user_id IS NULL
 			ORDER BY created_at DESC

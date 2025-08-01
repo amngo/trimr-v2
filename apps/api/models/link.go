@@ -18,6 +18,7 @@ type Link struct {
 	ActiveFrom  *time.Time `json:"activeFrom,omitempty" db:"active_from"`
 	Password    *string    `json:"-" db:"password"`
 	UserID      *uuid.UUID `json:"userId,omitempty" db:"user_id"`
+	FaviconURL  *string    `json:"faviconUrl,omitempty" db:"favicon_url"`
 }
 
 type CreateLinkRequest struct {
