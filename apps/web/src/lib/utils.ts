@@ -324,3 +324,55 @@ export function isDateFuture(date: string | Date): boolean {
 export function getUserTimezone(): string {
   return Intl.DateTimeFormat().resolvedOptions().timeZone
 }
+
+/**
+ * Safely sets a cookie
+ */
+export function setCookie(name: string, value: string, options: {
+  maxAge?: number;
+  expires?: Date;
+  path?: string;
+  domain?: string;
+  secure?: boolean;
+  sameSite?: 'strict' | 'lax' | 'none';
+} = {}): void {
+  if (!isBrowser()) return;
+
+  const {
+    maxAge = 60 * 60 * 24, // 24 hours
+    path = '/',
+    secure = true,
+    sameSite = 'strict'
+  } = options;
+
+  let cookieString = `${name}=${encodeURIComponent(value)}; path=${path}`;
+  
+  if (maxAge) {
+    cookieString += `; max-age=${maxAge}`;
+  }
+  
+  if (options.expires) {
+    cookieString += `; expires=${options.expires.toUTCString()}`;
+  }
+  
+  if (options.domain) {
+    cookieString += `; domain=${options.domain}`;
+  }
+  
+  if (secure) {
+    cookieString += '; secure';
+  }
+  
+  cookieString += `; samesite=${sameSite}`;
+  
+  document.cookie = cookieString;
+}
+
+/**
+ * Safely removes a cookie
+ */
+export function removeCookie(name: string, path: string = '/'): void {
+  if (!isBrowser()) return;
+  
+  document.cookie = `${name}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+}

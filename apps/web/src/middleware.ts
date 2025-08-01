@@ -14,8 +14,8 @@ export function middleware(request: NextRequest) {
   );
 
   if (isProtectedRoute) {
-    // Check for authentication token in cookies
-    const token = request.cookies.get('token')?.value;
+    // Check for authentication token in cookies (matching AUTH_CONFIG.TOKEN_KEY)
+    const token = request.cookies.get('auth_token')?.value;
 
     // If no token is found, redirect to home page
     if (!token) {

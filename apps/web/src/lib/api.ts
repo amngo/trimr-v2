@@ -12,7 +12,7 @@ import {
   AppError
 } from '@/types'
 import { API_CONFIG, AUTH_CONFIG, ROUTES } from '@/lib/constants'
-import { handleApiError, safeLocalStorage, delay } from '@/lib/utils'
+import { handleApiError, safeLocalStorage, delay, setCookie, removeCookie } from '@/lib/utils'
 
 /**
  * Enhanced API client with better error handling, retries, and type safety
@@ -38,17 +38,27 @@ class ApiClient {
   }
 
   /**
-   * Set authentication token in storage
+   * Set authentication token in storage and cookie
    */
   private setToken(token: string): void {
     safeLocalStorage().setItem(AUTH_CONFIG.TOKEN_KEY, token)
+    
+    // Also set as HTTP cookie for middleware access
+    setCookie(AUTH_CONFIG.TOKEN_KEY, token, {
+      maxAge: AUTH_CONFIG.SESSION_TIMEOUT / 1000, // Convert to seconds
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    })
   }
 
   /**
-   * Remove authentication token from storage
+   * Remove authentication token from storage and cookie
    */
   private removeToken(): void {
     safeLocalStorage().removeItem(AUTH_CONFIG.TOKEN_KEY)
+    
+    // Also remove HTTP cookie
+    removeCookie(AUTH_CONFIG.TOKEN_KEY)
   }
 
   /**
