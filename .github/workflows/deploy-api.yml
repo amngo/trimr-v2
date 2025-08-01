@@ -1,42 +1,67 @@
-name: Deploy API to Cloud Run
+name: Deploy API to Google Cloud Run
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+    paths:
+      - 'apps/api/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'apps/api/**'
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GAR_LOCATION: ${{ secrets.GAR_LOCATION || 'us-central1' }}
+  SERVICE: trimr-api
+  REGION: ${{ secrets.GCP_REGION || 'us-central1' }}
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      # Authenticate with GCP
-      - name: Setup gcloud
+      # ✅ Authenticate with GCP using Service Account JSON
+      - name: Google Cloud Authentication
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
           service_account_key: ${{ secrets.GCP_SA_KEY }}
 
+      # ✅ Configure Docker to authenticate with GCP
       - name: Configure Docker
-        run: gcloud auth configure-docker gcr.io --quiet
+        run: gcloud auth configure-docker ${{ env.GAR_LOCATION }}-docker.pkg.dev --quiet
 
-      # Build Docker image from apps/api
-      - name: Build and push Docker image
+      # ✅ Build & Push Docker image from apps/api
+      - name: Build and Push Container
         run: |
-          IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend"
           cd apps/api
-          docker build -t $IMAGE .
-          docker push $IMAGE
+          IMAGE="${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}"
+          docker build -t "$IMAGE" .
+          docker push "$IMAGE"
 
-      # Deploy to Cloud Run
+      # ✅ Deploy to Cloud Run
       - name: Deploy to Cloud Run
-        run: |
-          IMAGE="gcr.io/${{ secrets.GCP_PROJECT_ID }}/backend"
-          gcloud run deploy backend-service \
-            --image $IMAGE \
-            --region ${{ secrets.GCP_REGION }} \
-            --platform managed \
-            --allow-unauthenticated
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.SERVICE }}
+          region: ${{ env.REGION }}
+          image: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.SERVICE }}/${{ env.SERVICE }}:${{ github.sha }}
+          env_vars: |
+            GIN_MODE=${{ secrets.GIN_MODE || 'release' }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            SUPABASE_DB_URL=${{ secrets.SUPABASE_DB_URL }}
+            BASE_URL=${{ secrets.BASE_URL }}
+            RATE_LIMIT_REQUESTS=${{ secrets.RATE_LIMIT_REQUESTS || '100' }}
+            RATE_LIMIT_WINDOW=${{ secrets.RATE_LIMIT_WINDOW || '60' }}
+            UNIQUE_CLICK_EXPIRY_HOURS=${{ secrets.UNIQUE_CLICK_EXPIRY_HOURS || '24' }}
+
+      # If required, use the Cloud Run url output in later steps
+      - name: Show Output
+        run: echo ${{ steps.deploy.outputs.url }}
