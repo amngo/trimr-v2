@@ -6,6 +6,10 @@ import { createLink } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   Sheet,
   SheetContent,
@@ -14,7 +18,21 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { Link2, Copy, CheckCircle, AlertCircle, Sparkles } from 'lucide-react';
+import { 
+  Link2, 
+  Copy, 
+  CheckCircle, 
+  AlertCircle, 
+  Sparkles, 
+  Calendar as CalendarIcon,
+  Clock,
+  Shield,
+  ChevronDown,
+  Eye,
+  EyeOff
+} from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface LinkCreationSheetProps {
   children: React.ReactNode;
@@ -32,6 +50,18 @@ export function LinkCreationSheet({
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Advanced options state
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [hasExpiry, setHasExpiry] = useState(false);
+  const [expiryDate, setExpiryDate] = useState<Date>();
+  const [expiryTime, setExpiryTime] = useState('23:59');
+  const [hasScheduledActivation, setHasScheduledActivation] = useState(false);
+  const [activationDate, setActivationDate] = useState<Date>();
+  const [activationTime, setActivationTime] = useState('00:00');
+  const [hasPassword, setHasPassword] = useState(false);
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,14 +71,49 @@ export function LinkCreationSheet({
     setCopied(false);
 
     try {
-      const response = await createLink({
+      // Prepare the request data
+      const requestData: any = {
         url,
         name: name || undefined,
-      });
+      };
+
+      // Add expiry date if enabled
+      if (hasExpiry && expiryDate) {
+        const [hours, minutes] = expiryTime.split(':');
+        const expiryDateTime = new Date(expiryDate);
+        expiryDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+        requestData.expiresAt = expiryDateTime.toISOString();
+      }
+
+      // Add activation date if enabled
+      if (hasScheduledActivation && activationDate) {
+        const [hours, minutes] = activationTime.split(':');
+        const activationDateTime = new Date(activationDate);
+        activationDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+        requestData.activeFrom = activationDateTime.toISOString();
+      }
+
+      // Add password if enabled
+      if (hasPassword && password.trim()) {
+        requestData.password = password.trim();
+      }
+
+      const response = await createLink(requestData);
 
       setShortUrl(response.shortUrl);
       setUrl('');
       setName('');
+      
+      // Reset advanced options
+      setHasExpiry(false);
+      setExpiryDate(undefined);
+      setExpiryTime('23:59');
+      setHasScheduledActivation(false);
+      setActivationDate(undefined);
+      setActivationTime('00:00');
+      setHasPassword(false);
+      setPassword('');
+      setShowAdvanced(false);
 
       if (onSuccess) {
         onSuccess();
@@ -77,6 +142,18 @@ export function LinkCreationSheet({
       setError(null);
       setShortUrl(null);
       setCopied(false);
+      
+      // Reset advanced options
+      setHasExpiry(false);
+      setExpiryDate(undefined);
+      setExpiryTime('23:59');
+      setHasScheduledActivation(false);
+      setActivationDate(undefined);
+      setActivationTime('00:00');
+      setHasPassword(false);
+      setPassword('');
+      setShowAdvanced(false);
+      setShowPassword(false);
     }, 300);
   };
 
@@ -86,6 +163,18 @@ export function LinkCreationSheet({
     setCopied(false);
     setUrl('');
     setName('');
+    
+    // Reset advanced options
+    setHasExpiry(false);
+    setExpiryDate(undefined);
+    setExpiryTime('23:59');
+    setHasScheduledActivation(false);
+    setActivationDate(undefined);
+    setActivationTime('00:00');
+    setHasPassword(false);
+    setPassword('');
+    setShowAdvanced(false);
+    setShowPassword(false);
   };
 
   return (
@@ -169,6 +258,231 @@ export function LinkCreationSheet({
                   </motion.div>
                 </div>
               </div>
+
+              {/* Advanced Options */}
+              <Collapsible open={showAdvanced} onOpenChange={setShowAdvanced}>
+                <CollapsibleTrigger asChild>
+                  <motion.button
+                    type="button"
+                    className="flex items-center justify-between w-full p-3 text-left bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                    whileHover={{ scale: 1.01 }}
+                    whileTap={{ scale: 0.99 }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <Sparkles className="w-3 h-3 text-white" />
+                      </div>
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Advanced Options
+                      </span>
+                    </div>
+                    <motion.div
+                      animate={{ rotate: showAdvanced ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <ChevronDown className="w-4 h-4 text-slate-500" />
+                    </motion.div>
+                  </motion.button>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent>
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="mt-4 space-y-6 p-4 bg-slate-50/50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700"
+                  >
+                    {/* Link Expiry */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Clock className="w-4 h-4 text-orange-500" />
+                          <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Link Expiry
+                          </Label>
+                        </div>
+                        <Switch
+                          checked={hasExpiry}
+                          onCheckedChange={setHasExpiry}
+                          disabled={loading}
+                        />
+                      </div>
+                      
+                      {hasExpiry && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="grid grid-cols-2 gap-3"
+                        >
+                          <div className="space-y-2">
+                            <Label className="text-xs text-slate-600 dark:text-slate-400">
+                              Expiry Date
+                            </Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "h-10 text-left font-normal",
+                                    !expiryDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {expiryDate ? format(expiryDate, "MMM dd, yyyy") : "Pick date"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={expiryDate}
+                                  onSelect={setExpiryDate}
+                                  disabled={(date) => date < new Date()}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-slate-600 dark:text-slate-400">
+                              Expiry Time
+                            </Label>
+                            <Input
+                              type="time"
+                              value={expiryTime}
+                              onChange={(e) => setExpiryTime(e.target.value)}
+                              className="h-10"
+                              disabled={loading}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+
+                    {/* Scheduled Activation */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <CalendarIcon className="w-4 h-4 text-blue-500" />
+                          <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Scheduled Activation
+                          </Label>
+                        </div>
+                        <Switch
+                          checked={hasScheduledActivation}
+                          onCheckedChange={setHasScheduledActivation}
+                          disabled={loading}
+                        />
+                      </div>
+                      
+                      {hasScheduledActivation && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="grid grid-cols-2 gap-3"
+                        >
+                          <div className="space-y-2">
+                            <Label className="text-xs text-slate-600 dark:text-slate-400">
+                              Activation Date
+                            </Label>
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  className={cn(
+                                    "h-10 text-left font-normal",
+                                    !activationDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {activationDate ? format(activationDate, "MMM dd, yyyy") : "Pick date"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  mode="single"
+                                  selected={activationDate}
+                                  onSelect={setActivationDate}
+                                  disabled={(date) => date < new Date()}
+                                  initialFocus
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div className="space-y-2">
+                            <Label className="text-xs text-slate-600 dark:text-slate-400">
+                              Activation Time
+                            </Label>
+                            <Input
+                              type="time"
+                              value={activationTime}
+                              onChange={(e) => setActivationTime(e.target.value)}
+                              className="h-10"
+                              disabled={loading}
+                            />
+                          </div>
+                        </motion.div>
+                      )}
+                    </div>
+
+                    {/* Password Protection */}
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Shield className="w-4 h-4 text-green-500" />
+                          <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Password Protection
+                          </Label>
+                        </div>
+                        <Switch
+                          checked={hasPassword}
+                          onCheckedChange={setHasPassword}
+                          disabled={loading}
+                        />
+                      </div>
+                      
+                      {hasPassword && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="space-y-2"
+                        >
+                          <Label className="text-xs text-slate-600 dark:text-slate-400">
+                            Enter Password
+                          </Label>
+                          <div className="relative">
+                            <Input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Enter a secure password"
+                              value={password}
+                              onChange={(e) => setPassword(e.target.value)}
+                              className="h-10 pr-10"
+                              disabled={loading}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setShowPassword(!showPassword)}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                              disabled={loading}
+                            >
+                              {showPassword ? (
+                                <EyeOff className="w-4 h-4" />
+                              ) : (
+                                <Eye className="w-4 h-4" />
+                              )}
+                            </button>
+                          </div>
+                          {password && password.length < 6 && (
+                            <p className="text-xs text-orange-600 dark:text-orange-400">
+                              Password should be at least 6 characters long
+                            </p>
+                          )}
+                        </motion.div>
+                      )}
+                    </div>
+                  </motion.div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {error && (
                 <motion.div
