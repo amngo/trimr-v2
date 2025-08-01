@@ -1,9 +1,11 @@
 'use client';
 
 import { motion } from 'motion/react';
+import Link from 'next/link';
 import { ArrowRight, Link2, Zap, Shield, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LinkForm } from '@/components/link-form';
+import { LinkCreationSheet } from '@/components/link-creation-sheet';
 import Aurora from './background/aurora';
 
 const containerVariants = {
@@ -85,14 +87,15 @@ export function HeroSection({ onLinkCreated }: { onLinkCreated?: () => void }) {
             >
               Features
             </motion.a>
-            <motion.a
-              href="#dashboard"
-              className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors"
-              variants={itemVariants}
-              whileHover={{ scale: 1.05 }}
-            >
-              Dashboard
-            </motion.a>
+            <Link href="/dashboard">
+              <motion.span
+                className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors cursor-pointer"
+                variants={itemVariants}
+                whileHover={{ scale: 1.05 }}
+              >
+                Dashboard
+              </motion.span>
+            </Link>
             <motion.a
               href="#pricing"
               className="text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100 transition-colors"
@@ -145,18 +148,20 @@ export function HeroSection({ onLinkCreated }: { onLinkCreated?: () => void }) {
                 variants={itemVariants}
                 className="flex flex-col sm:flex-row gap-4"
               >
-                <motion.div
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <Button
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg"
+                <LinkCreationSheet onSuccess={onLinkCreated}>
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                   >
-                    Get Started Free
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </Button>
-                </motion.div>
+                    <Button
+                      size="lg"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg"
+                    >
+                      Get Started Free
+                      <ArrowRight className="ml-2 w-5 h-5" />
+                    </Button>
+                  </motion.div>
+                </LinkCreationSheet>
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}

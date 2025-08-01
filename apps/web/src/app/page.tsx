@@ -20,7 +20,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <HeroSection onLinkCreated={handleLinkCreated} />
-      <FeaturesSection />
+      <FeaturesSection onLinkCreated={handleLinkCreated} />
       
       {/* Dashboard Section */}
       <section id="dashboard" className="py-20 md:py-32 bg-slate-50 dark:bg-slate-800">

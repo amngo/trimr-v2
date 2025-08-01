@@ -1,7 +1,9 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Link2, BarChart3, Shield, Zap, Eye, Users } from "lucide-react";
+import { Link2, BarChart3, Shield, Zap, Eye, Users, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LinkCreationSheet } from "@/components/link-creation-sheet";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -65,7 +67,7 @@ const features = [
   }
 ];
 
-export function FeaturesSection() {
+export function FeaturesSection({ onLinkCreated }: { onLinkCreated?: () => void }) {
   return (
     <section id="features" className="py-20 md:py-32 bg-white dark:bg-slate-900">
       <div className="container mx-auto px-6 md:px-8">
@@ -139,26 +141,43 @@ export function FeaturesSection() {
 
         {/* Call to action */}
         <motion.div
-          className="text-center mt-16"
+          className="text-center mt-16 space-y-6"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <motion.a
-            href="#dashboard"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
-            whileHover={{ scale: 1.05 }}
-          >
-            <span>See all features in action</span>
-            <motion.div
-              className="ml-2"
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity }}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <LinkCreationSheet onSuccess={onLinkCreated}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button
+                  size="lg"
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg"
+                >
+                  Try It Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Button>
+              </motion.div>
+            </LinkCreationSheet>
+            
+            <motion.a
+              href="#dashboard"
+              className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
+              whileHover={{ scale: 1.05 }}
             >
-              →
-            </motion.div>
-          </motion.a>
+              <span>See all features in action</span>
+              <motion.div
+                className="ml-2"
+                animate={{ x: [0, 5, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                →
+              </motion.div>
+            </motion.a>
+          </div>
         </motion.div>
       </div>
     </section>
