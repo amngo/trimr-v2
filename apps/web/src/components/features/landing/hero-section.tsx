@@ -8,14 +8,13 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Link2, Zap, Shield, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { LinkForm } from '@/components/link-form';
-import { LinkCreationSheet } from '@/components/link-creation-sheet';
+import { LinkForm, LinkCreationSheet } from '@/components';
 import {
   StaggerContainer,
   SlideUp,
   FadeIn,
 } from '@/components/common/animated-container';
-import Aurora from './background/aurora';
+import { Aurora } from '@/components';
 import { BaseComponentProps } from '@/types';
 
 interface HeroSectionProps extends BaseComponentProps {

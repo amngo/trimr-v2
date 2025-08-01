@@ -20,7 +20,6 @@ export {
   LoadingSpinner,
   LoadingOverlay,
   ButtonSpinner,
-  Skeleton,
   TextSkeleton,
 } from './loading-spinner'
 

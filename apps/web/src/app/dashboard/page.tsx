@@ -39,7 +39,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { getLinks, Link } from '@/lib/api';
 import { useAuth } from '@/contexts/auth-context';
-import { LinkCreationSheet } from '@/components/link-creation-sheet';
+import { LinkCreationSheet } from '@/components';
 
 const containerVariants = {
   hidden: { opacity: 0 },

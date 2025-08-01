@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { checkLinkAccess } from "@/lib/api";
-import { PasswordPrompt } from "@/components/password-prompt";
+import { PasswordPrompt } from "@/components";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LinkAccessPage() {

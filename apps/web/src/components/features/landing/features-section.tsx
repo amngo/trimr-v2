@@ -3,7 +3,7 @@
 import { motion } from "motion/react";
 import { Link2, BarChart3, Shield, Zap, Eye, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LinkCreationSheet } from "@/components/link-creation-sheet";
+import { LinkCreationSheet } from "@/components";
 
 const containerVariants = {
   hidden: { opacity: 0 },

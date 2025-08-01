@@ -1,22 +1,34 @@
-"use client";
+'use client';
 
-import { HeroSection } from "@/components/hero-section";
-import { FeaturesSection } from "@/components/features-section";
-import { LinksDashboard } from "@/components/links-dashboard";
-import { AuthForm } from "@/components/auth/auth-form";
-import { UserProfile } from "@/components/auth/user-profile";
-import { useAuth } from "@/contexts/auth-context";
+import { useState } from 'react';
+import {
+  HeroSection,
+  FeaturesSection,
+  LinksDashboard,
+  AuthForm,
+  UserProfile,
+} from '@/components';
+import { useAuth } from '@/contexts/auth-context';
 
 export default function Home() {
+  const [, setRefreshCount] = useState(0);
   const { user, isLoading } = useAuth();
+
+  const handleLinkCreated = () => {
+    // Trigger dashboard refresh
+    setRefreshCount((prev) => prev + 1);
+  };
 
   return (
     <div className="min-h-screen">
-      <HeroSection />
+      <HeroSection onLinkCreated={handleLinkCreated} />
       <FeaturesSection />
-      
+
       {/* Dashboard Section */}
-      <section id="dashboard" className="py-20 md:py-32 bg-slate-50 dark:bg-slate-800">
+      <section
+        id="dashboard"
+        className="py-20 md:py-32 bg-slate-50 dark:bg-slate-800"
+      >
         <div className="container mx-auto px-6 md:px-8">
           <div className="flex justify-between items-center mb-16">
             <div className="text-center space-y-6 flex-1">
@@ -26,22 +38,19 @@ export default function Home() {
                 </span>
               </h2>
               <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-                Manage all your shortened links in one beautiful interface. Track performance, 
-                analyze clicks, and optimize your link strategy.
+                Manage all your shortened links in one beautiful interface.
+                Track performance, analyze clicks, and optimize your link
+                strategy.
               </p>
             </div>
-            
+
             {!isLoading && (
               <div className="ml-8">
-                {user ? (
-                  <UserProfile />
-                ) : (
-                  <AuthForm />
-                )}
+                {user ? <UserProfile /> : <AuthForm />}
               </div>
             )}
           </div>
-          
+
           <LinksDashboard />
         </div>
       </section>

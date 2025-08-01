@@ -1,11 +1,7 @@
 import type { Metadata } from 'next';
 import { Figtree, Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from '@/contexts/auth-context';
-import { StoreProvider } from '@/components/store-provider';
-import { ThemeProvider } from '@/components/theme-provider';
-import { ThemeScript } from '@/components/theme-script';
-import { ToastContainer } from '@/components/toast-container';
-import { ClientOnly } from '@/components/client-only';
+import { StoreProvider, ThemeProvider, ThemeScript, ToastContainer, ClientOnly } from '@/components';
 import './globals.css';
 
 const figtree = Figtree({
