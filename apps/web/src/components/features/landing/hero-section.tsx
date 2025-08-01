@@ -70,7 +70,7 @@ export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
       <div className="relative z-10">
         {/* Navigation */}
         <FadeIn delay={0.2}>
-          <nav className="flex items-center justify-between px-6 py-4 mx-12 mt-8 bg-white/10 backdrop-blur-xl rounded-lg border border-white/20">
+          <nav className="flex items-center justify-between px-6 py-4 mx-12 mt-8 glass rounded-lg border">
             <motion.div
               className="flex items-center space-x-2"
               whileHover={{ scale: 1.05 }}
@@ -171,7 +171,7 @@ export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
             {/* Right Column - Link Form */}
             <SlideUp delay={0.6} className="lg:pl-8">
               <motion.div
-                className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20"
+                className="glass border rounded-3xl p-8"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.3 }}
               >

@@ -8,8 +8,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import {
   Sheet,
   SheetContent,
@@ -18,18 +26,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
-import { 
-  Link2, 
-  Copy, 
-  CheckCircle, 
-  AlertCircle, 
-  Sparkles, 
+import {
+  Link2,
+  Copy,
+  CheckCircle,
+  AlertCircle,
+  Sparkles,
   Calendar as CalendarIcon,
   Clock,
   Shield,
   ChevronDown,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -50,7 +58,7 @@ export function LinkCreationSheet({
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  
+
   // Advanced options state
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [hasExpiry, setHasExpiry] = useState(false);
@@ -81,7 +89,12 @@ export function LinkCreationSheet({
       if (hasExpiry && expiryDate) {
         const [hours, minutes] = expiryTime.split(':');
         const expiryDateTime = new Date(expiryDate);
-        expiryDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+        expiryDateTime.setHours(
+          parseInt(hours, 10),
+          parseInt(minutes, 10),
+          0,
+          0,
+        );
         requestData.expiresAt = expiryDateTime.toISOString();
       }
 
@@ -89,7 +102,12 @@ export function LinkCreationSheet({
       if (hasScheduledActivation && activationDate) {
         const [hours, minutes] = activationTime.split(':');
         const activationDateTime = new Date(activationDate);
-        activationDateTime.setHours(parseInt(hours, 10), parseInt(minutes, 10), 0, 0);
+        activationDateTime.setHours(
+          parseInt(hours, 10),
+          parseInt(minutes, 10),
+          0,
+          0,
+        );
         requestData.activeFrom = activationDateTime.toISOString();
       }
 
@@ -103,7 +121,7 @@ export function LinkCreationSheet({
       setShortUrl(response.shortUrl);
       setUrl('');
       setName('');
-      
+
       // Reset advanced options
       setHasExpiry(false);
       setExpiryDate(undefined);
@@ -142,7 +160,7 @@ export function LinkCreationSheet({
       setError(null);
       setShortUrl(null);
       setCopied(false);
-      
+
       // Reset advanced options
       setHasExpiry(false);
       setExpiryDate(undefined);
@@ -163,7 +181,7 @@ export function LinkCreationSheet({
     setCopied(false);
     setUrl('');
     setName('');
-    
+
     // Reset advanced options
     setHasExpiry(false);
     setExpiryDate(undefined);
@@ -180,7 +198,7 @@ export function LinkCreationSheet({
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>{children}</SheetTrigger>
-      <SheetContent side="right" className="w-full sm:max-w-md">
+      <SheetContent side="right" className="w-full sm:max-w-md glass">
         <SheetHeader className="space-y-4">
           <div className="flex items-center space-x-3">
             <motion.div
@@ -284,7 +302,7 @@ export function LinkCreationSheet({
                     </motion.div>
                   </motion.button>
                 </CollapsibleTrigger>
-                
+
                 <CollapsibleContent>
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
@@ -308,7 +326,7 @@ export function LinkCreationSheet({
                           disabled={loading}
                         />
                       </div>
-                      
+
                       {hasExpiry && (
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
@@ -324,15 +342,20 @@ export function LinkCreationSheet({
                                 <Button
                                   variant="outline"
                                   className={cn(
-                                    "h-10 text-left font-normal",
-                                    !expiryDate && "text-muted-foreground"
+                                    'h-10 text-left font-normal',
+                                    !expiryDate && 'text-muted-foreground',
                                   )}
                                 >
                                   <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {expiryDate ? format(expiryDate, "MMM dd, yyyy") : "Pick date"}
+                                  {expiryDate
+                                    ? format(expiryDate, 'MMM dd, yyyy')
+                                    : 'Pick date'}
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                              >
                                 <Calendar
                                   mode="single"
                                   selected={expiryDate}
@@ -374,7 +397,7 @@ export function LinkCreationSheet({
                           disabled={loading}
                         />
                       </div>
-                      
+
                       {hasScheduledActivation && (
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
@@ -390,15 +413,20 @@ export function LinkCreationSheet({
                                 <Button
                                   variant="outline"
                                   className={cn(
-                                    "h-10 text-left font-normal",
-                                    !activationDate && "text-muted-foreground"
+                                    'h-10 text-left font-normal',
+                                    !activationDate && 'text-muted-foreground',
                                   )}
                                 >
                                   <CalendarIcon className="mr-2 h-4 w-4" />
-                                  {activationDate ? format(activationDate, "MMM dd, yyyy") : "Pick date"}
+                                  {activationDate
+                                    ? format(activationDate, 'MMM dd, yyyy')
+                                    : 'Pick date'}
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                              >
                                 <Calendar
                                   mode="single"
                                   selected={activationDate}
@@ -416,7 +444,9 @@ export function LinkCreationSheet({
                             <Input
                               type="time"
                               value={activationTime}
-                              onChange={(e) => setActivationTime(e.target.value)}
+                              onChange={(e) =>
+                                setActivationTime(e.target.value)
+                              }
                               className="h-10"
                               disabled={loading}
                             />
@@ -440,7 +470,7 @@ export function LinkCreationSheet({
                           disabled={loading}
                         />
                       </div>
-                      
+
                       {hasPassword && (
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
@@ -452,7 +482,7 @@ export function LinkCreationSheet({
                           </Label>
                           <div className="relative">
                             <Input
-                              type={showPassword ? "text" : "password"}
+                              type={showPassword ? 'text' : 'password'}
                               placeholder="Enter a secure password"
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}

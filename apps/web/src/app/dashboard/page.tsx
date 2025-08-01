@@ -107,32 +107,22 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen relative">
+    <div className="min-h-screen relative bg-slate-900/95">
       {/* Header */}
       <motion.div
-        className="border-b bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl"
+        className="border-b glass"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="container mx-auto px-6 py-6">
+        <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                <Link2 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-                  Dashboard
-                </h1>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Manage your shortened links
-                </p>
-              </div>
-            </div>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+              Dashboard
+            </h1>
 
             <LinkCreationSheet>
-              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+              <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Link
               </Button>
@@ -150,7 +140,7 @@ export default function Dashboard() {
           animate="visible"
         >
           <motion.div variants={itemVariants}>
-            <Card className="border-0 shadow-lg bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl">
+            <Card className="glass">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Total Links
@@ -169,7 +159,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="border-0 shadow-lg bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl">
+            <Card className="glass">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Total Clicks
@@ -188,7 +178,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="border-0 shadow-lg bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl">
+            <Card className="glass">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Active Links
@@ -207,7 +197,7 @@ export default function Dashboard() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Card className="border-0 shadow-lg bg-white/60 dark:bg-slate-800/60 backdrop-blur-xl">
+            <Card className="glass">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-slate-600 dark:text-slate-400">
                   Avg. Clicks
@@ -235,7 +225,7 @@ export default function Dashboard() {
           animate="visible"
           transition={{ delay: 0.3 }}
         >
-          <Card className="border-0 shadow-xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl">
+          <Card className="glass">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
@@ -394,6 +384,15 @@ export default function Dashboard() {
           </Card>
         </motion.div>
       </div>
+
+      {/* <div className="absolute inset-0 -z-10">
+        <Squares
+          speed={0.25}
+          squareSize={100}
+          direction="diagonal"
+          borderColor="#fff"
+        />
+      </div> */}
     </div>
   );
 }

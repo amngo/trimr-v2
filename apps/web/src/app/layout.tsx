@@ -1,7 +1,12 @@
 import type { Metadata } from 'next';
 import { Figtree, Geist, Geist_Mono } from 'next/font/google';
 import { AuthProvider } from '@/contexts/auth-context';
-import { StoreProvider, ThemeProvider, ThemeScript, ToastContainer, ClientOnly } from '@/components';
+import {
+  StoreProvider,
+  ThemeProvider,
+  ThemeScript,
+  ToastContainer,
+} from '@/components';
 import './globals.css';
 
 const figtree = Figtree({
@@ -47,9 +52,7 @@ export default function RootLayout({
           <AuthProvider>
             <StoreProvider>
               {children}
-              <ClientOnly>
-                <ToastContainer />
-              </ClientOnly>
+              <ToastContainer />
             </StoreProvider>
           </AuthProvider>
         </ThemeProvider>

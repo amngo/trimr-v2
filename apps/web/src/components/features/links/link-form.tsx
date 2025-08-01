@@ -1,15 +1,23 @@
-"use client";
-
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
-import { Calendar, Clock, Lock, Link2, Copy, CheckCircle, AlertCircle, Plus, Minus } from "lucide-react";
-import { useCreateLink, useIsCreating, useError } from "@/stores";
-import { useLinkToasts } from "@/stores/utils";
+'use client';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import {
+  Calendar,
+  Clock,
+  Lock,
+  Link2,
+  Copy,
+  CheckCircle,
+  AlertCircle,
+  Plus,
+  Minus,
+} from 'lucide-react';
+import { useCreateLink, useIsCreating, useError } from '@/stores';
+import { useLinkToasts } from '@/stores/utils';
 
 export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
   // Zustand stores
@@ -19,20 +27,20 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
   const { showLinkCreated, showLinkError, showLinkCopied } = useLinkToasts();
 
   // Local form state
-  const [url, setUrl] = useState("");
-  const [name, setName] = useState("");
+  const [url, setUrl] = useState('');
+  const [name, setName] = useState('');
   const [shortUrl, setShortUrl] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  
+
   // Advanced options
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState('');
   const [hasPassword, setHasPassword] = useState(false);
-  const [expiresAt, setExpiresAt] = useState("");
+  const [expiresAt, setExpiresAt] = useState('');
   const [hasExpiry, setHasExpiry] = useState(false);
-  const [activeFrom, setActiveFrom] = useState("");
+  const [activeFrom, setActiveFrom] = useState('');
   const [hasScheduled, setHasScheduled] = useState(false);
-  
+
   // Current date for date/time inputs
   const now = new Date();
 
@@ -44,28 +52,29 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
     try {
       // Create link using Zustand store
       const link = await createLink(url, name || undefined);
-      
+
       if (link) {
         setShortUrl(link.shortUrl);
         showLinkCreated(name);
-        
+
         // Reset form
-        setUrl("");
-        setName("");
-        setPassword("");
-        setExpiresAt("");
-        setActiveFrom("");
+        setUrl('');
+        setName('');
+        setPassword('');
+        setExpiresAt('');
+        setActiveFrom('');
         setHasPassword(false);
         setHasExpiry(false);
         setHasScheduled(false);
         setShowAdvanced(false);
-        
+
         if (onSuccess) {
           onSuccess();
         }
       }
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to create link";
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to create link';
       showLinkError(errorMessage);
     }
   };
@@ -92,7 +101,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <motion.div 
+      <motion.div
         className="text-center space-y-3"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -111,8 +120,8 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
         </p>
       </motion.div>
 
-      <motion.form 
-        onSubmit={handleSubmit} 
+      <motion.form
+        onSubmit={handleSubmit}
         className="space-y-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,7 +130,10 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
         {/* Basic Fields */}
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="url" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <Label
+              htmlFor="url"
+              className="text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
               Your URL *
             </Label>
             <motion.div
@@ -140,9 +152,12 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
               />
             </motion.div>
           </div>
-          
+
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-slate-300">
+            <Label
+              htmlFor="name"
+              className="text-sm font-medium text-slate-700 dark:text-slate-300"
+            >
               Custom Name (optional)
             </Label>
             <motion.div
@@ -174,7 +189,11 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
             onClick={() => setShowAdvanced(!showAdvanced)}
             className="flex items-center space-x-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
           >
-            {showAdvanced ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            {showAdvanced ? (
+              <Minus className="w-4 h-4" />
+            ) : (
+              <Plus className="w-4 h-4" />
+            )}
             <span>Advanced Options</span>
           </button>
         </motion.div>
@@ -184,7 +203,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
           <motion.div
             className="space-y-6 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-6 border border-slate-200 dark:border-slate-700"
             initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3 }}
           >
@@ -231,7 +250,10 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                 />
                 <div className="flex items-center space-x-2">
                   <Clock className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                  <Label htmlFor="has-scheduled" className="text-sm font-medium">
+                  <Label
+                    htmlFor="has-scheduled"
+                    className="text-sm font-medium"
+                  >
                     Scheduled Activation
                   </Label>
                 </div>
@@ -285,7 +307,11 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                     type="datetime-local"
                     value={expiresAt}
                     onChange={(e) => setExpiresAt(e.target.value)}
-                    min={hasScheduled && activeFrom ? activeFrom : formatDateTimeLocal(now)}
+                    min={
+                      hasScheduled && activeFrom
+                        ? activeFrom
+                        : formatDateTimeLocal(now)
+                    }
                     disabled={isCreating}
                     className="h-10 bg-white dark:bg-slate-700"
                   />
@@ -348,12 +374,9 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
         )}
 
         {/* Submit Button */}
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <Button 
-            type="submit" 
+        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+          <Button
+            type="submit"
             className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white text-lg font-medium rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             disabled={isCreating}
           >
@@ -362,7 +385,7 @@ export function LinkForm({ onSuccess }: { onSuccess?: () => void }) {
                 <motion.div
                   className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
                   animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                 />
                 <span>Creating your link...</span>
               </div>

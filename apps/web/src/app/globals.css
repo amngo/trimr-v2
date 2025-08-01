@@ -121,3 +121,7 @@
     font-family: Figtree, sans-serif;
   }
 }
+
+.glass {
+  @apply bg-slate-800/40 backdrop-blur border-white/20;
+}
