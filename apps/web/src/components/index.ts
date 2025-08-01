@@ -12,6 +12,3 @@ export * from './effects';
 
 // UI components
 export * from './ui';
-
-// Direct exports for commonly used components
-export { ClientOnly } from './client-only';

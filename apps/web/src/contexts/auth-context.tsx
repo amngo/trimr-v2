@@ -1,12 +1,21 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, getToken, getProfile, logout as apiLogout } from '@/lib/api';
+import {
+  User,
+  getToken,
+  getProfile,
+  logout as apiLogout,
+  login as apiLogin,
+  register as apiRegister,
+} from '@/lib/api';
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -37,6 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const login = async (email: string, password: string) => {
+    const response = await apiLogin({ email, password });
+    setUser(response.user);
+  };
+
+  const register = async (name: string, email: string, password: string) => {
+    const response = await apiRegister({ name, email, password });
+    setUser(response.user);
+  };
+
   const logout = async () => {
     await apiLogout();
     setUser(null);
@@ -50,15 +69,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isLoading,
     isAuthenticated: !!user,
+    login,
+    register,
     logout,
     refreshUser,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

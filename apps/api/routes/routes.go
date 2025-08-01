@@ -17,6 +17,7 @@ func SetupRoutes(r *gin.Engine) {
 		// Authentication endpoints
 		api.POST("/auth/register", handlers.Register)
 		api.POST("/auth/login", handlers.Login)
+		api.POST("/auth/logout", handlers.Logout)
 		api.GET("/auth/profile", middleware.JWTAuth(), handlers.GetProfile)
 
 		// Link endpoints - using optional JWT auth for backward compatibility

@@ -357,7 +357,7 @@ func CheckLinkAccess(c *gin.Context) {
 // UpdateLink handles updating link properties (name, disabled status)
 func UpdateLink(c *gin.Context) {
 	linkID := c.Param("id")
-	
+
 	// Validate UUID format
 	id, err := uuid.Parse(linkID)
 	if err != nil {
@@ -433,7 +433,7 @@ func UpdateLink(c *gin.Context) {
 		whereClause += " AND user_id IS NULL"
 	}
 
-	updateQuery := fmt.Sprintf("UPDATE links SET %s WHERE %s", 
+	updateQuery := fmt.Sprintf("UPDATE links SET %s WHERE %s",
 		strings.Join(updateFields, ", "), whereClause)
 
 	// Execute update
@@ -455,7 +455,7 @@ func UpdateLink(c *gin.Context) {
 // DeleteLink handles deleting a link
 func DeleteLink(c *gin.Context) {
 	linkID := c.Param("id")
-	
+
 	// Validate UUID format
 	id, err := uuid.Parse(linkID)
 	if err != nil {

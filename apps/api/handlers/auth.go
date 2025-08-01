@@ -161,6 +161,18 @@ func GetProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// Logout handles user logout
+func Logout(c *gin.Context) {
+	// Since JWT tokens are stateless, we don't need to do anything server-side
+	// The client will remove the token from storage
+	// In a more complex system, you might want to:
+	// - Add the token to a blacklist
+	// - Log the logout event
+	// - Clear any server-side sessions
+	
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+}
+
 // generateJWTToken creates a new JWT token for the user
 func generateJWTToken(userID uuid.UUID, email string) (string, error) {
 	claims := middleware.JWTClaims{

@@ -16,6 +16,7 @@ import {
 } from '@/components/common/animated-container';
 import { Aurora } from '@/components';
 import { BaseComponentProps } from '@/types';
+import { useAuth } from '@/contexts/auth-context';
 
 interface HeroSectionProps extends BaseComponentProps {
   onLinkCreated?: () => void;
@@ -55,6 +56,8 @@ const floatingIcons = [
  * Main hero section component
  */
 export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
+  const { isAuthenticated } = useAuth();
+  
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Animated background */}
@@ -83,9 +86,11 @@ export function HeroSection({ onLinkCreated, className }: HeroSectionProps) {
 
             <StaggerContainer className="hidden md:flex items-center space-x-8">
               <NavigationLink href="#features">Features</NavigationLink>
-              <Link href="/dashboard">
-                <NavigationLink as="span">Dashboard</NavigationLink>
-              </Link>
+              {isAuthenticated && (
+                <Link href="/dashboard">
+                  <NavigationLink as="span">Dashboard</NavigationLink>
+                </Link>
+              )}
               <NavigationLink href="#pricing">Pricing</NavigationLink>
             </StaggerContainer>
           </nav>
