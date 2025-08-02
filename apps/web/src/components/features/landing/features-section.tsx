@@ -1,9 +1,17 @@
-"use client";
+'use client';
 
-import { motion } from "motion/react";
-import { Link2, BarChart3, Shield, Zap, Eye, Users, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { LinkCreationSheet } from "@/components";
+import { motion } from 'motion/react';
+import {
+  Link2,
+  BarChart3,
+  Shield,
+  Zap,
+  Eye,
+  Users,
+  ArrowRight,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { LinkCreationSheet } from '@/components';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -11,9 +19,9 @@ const containerVariants = {
     opacity: 1,
     transition: {
       delayChildren: 0.2,
-      staggerChildren: 0.1
-    }
-  }
+      staggerChildren: 0.1,
+    },
+  },
 };
 
 const itemVariants = {
@@ -23,53 +31,63 @@ const itemVariants = {
     opacity: 1,
     transition: {
       duration: 0.6,
-      ease: "easeOut" as const
-    }
-  }
+      ease: 'easeOut' as const,
+    },
+  },
 };
 
 const features = [
   {
     icon: Link2,
-    title: "Instant URL Shortening",
-    description: "Transform long URLs into clean, shareable links in milliseconds with our lightning-fast processing engine.",
-    gradient: "from-blue-500 to-blue-600"
+    title: 'Instant URL Shortening',
+    description:
+      'Transform long URLs into clean, shareable links in milliseconds with our lightning-fast processing engine.',
+    gradient: 'from-blue-500 to-blue-600',
   },
   {
     icon: BarChart3,
-    title: "Advanced Analytics",
-    description: "Track clicks, analyze traffic patterns, and gain deep insights into your link performance with beautiful visualizations.",
-    gradient: "from-purple-500 to-purple-600"
+    title: 'Advanced Analytics',
+    description:
+      'Track clicks, analyze traffic patterns, and gain deep insights into your link performance with beautiful visualizations.',
+    gradient: 'from-purple-500 to-purple-600',
   },
   {
     icon: Shield,
-    title: "Enterprise Security",
-    description: "Your data stays secure with enterprise-grade encryption, privacy controls, and compliance standards.",
-    gradient: "from-emerald-500 to-emerald-600"
+    title: 'Enterprise Security',
+    description:
+      'Your data stays secure with enterprise-grade encryption, privacy controls, and compliance standards.',
+    gradient: 'from-emerald-500 to-emerald-600',
   },
   {
     icon: Zap,
-    title: "Lightning Fast",
-    description: "Built for speed with sub-100ms response times and global CDN distribution for instant redirects worldwide.",
-    gradient: "from-amber-500 to-amber-600"
+    title: 'Lightning Fast',
+    description:
+      'Built for speed with sub-100ms response times and global CDN distribution for instant redirects worldwide.',
+    gradient: 'from-amber-500 to-amber-600',
   },
   {
     icon: Eye,
-    title: "Click Tracking",
-    description: "Monitor every click with detailed timestamps, geographic data, and device information for comprehensive insights.",
-    gradient: "from-rose-500 to-rose-600"
+    title: 'Click Tracking',
+    description:
+      'Monitor every click with detailed timestamps, geographic data, and device information for comprehensive insights.',
+    gradient: 'from-rose-500 to-rose-600',
   },
   {
     icon: Users,
-    title: "Team Collaboration",
-    description: "Share links across your team, set permissions, and collaborate on link management with role-based access.",
-    gradient: "from-indigo-500 to-indigo-600"
-  }
+    title: 'Team Collaboration',
+    description:
+      'Share links across your team, set permissions, and collaborate on link management with role-based access.',
+    gradient: 'from-indigo-500 to-indigo-600',
+  },
 ];
 
-export function FeaturesSection({ onLinkCreated }: { onLinkCreated?: () => void }) {
+export function FeaturesSection({
+  onLinkCreated,
+}: {
+  onLinkCreated?: () => void;
+}) {
   return (
-    <section id="features" className="py-20 md:py-32 bg-white dark:bg-slate-900">
+    <section id="features" className="py-20 md:py-32 bg-slate-900">
       <div className="container mx-auto px-6 md:px-8">
         <motion.div
           className="text-center space-y-6 mb-16"
@@ -79,13 +97,14 @@ export function FeaturesSection({ onLinkCreated }: { onLinkCreated?: () => void 
           transition={{ duration: 0.6 }}
         >
           <h2 className="text-4xl md:text-5xl font-bold">
-            <span className="bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 dark:from-slate-100 dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-slate-100 via-blue-200 to-purple-200 bg-clip-text text-transparent">
               Powerful Features
             </span>
           </h2>
-          <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Everything you need to manage, track, and optimize your links.
-            Built with modern technology and designed for developers, marketers, and teams.
+          <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
+            Everything you need to manage, track, and optimize your links. Built
+            with modern technology and designed for developers, marketers, and
+            teams.
           </p>
         </motion.div>
 
@@ -97,16 +116,13 @@ export function FeaturesSection({ onLinkCreated }: { onLinkCreated?: () => void 
           viewport={{ once: true }}
         >
           {features.map((feature, index) => (
-            <motion.div
-              key={index}
-              variants={itemVariants}
-              className="group"
-            >
+            <motion.div key={index} variants={itemVariants} className="group">
               <motion.div
-                className="relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-8 border border-slate-200 dark:border-slate-700 h-full"
+                className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700 h-full"
                 whileHover={{
                   scale: 1.02,
-                  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)"
+                  boxShadow:
+                    '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                 }}
                 transition={{ duration: 0.3 }}
               >
@@ -121,10 +137,10 @@ export function FeaturesSection({ onLinkCreated }: { onLinkCreated?: () => void 
 
                 {/* Content */}
                 <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-xl font-semibold text-slate-100 group-hover:text-blue-400 transition-colors">
                     {feature.title}
                   </h3>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
+                  <p className="text-slate-300 leading-relaxed">
                     {feature.description}
                   </p>
                 </div>
@@ -162,10 +178,10 @@ export function FeaturesSection({ onLinkCreated }: { onLinkCreated?: () => void 
                 </Button>
               </motion.div>
             </LinkCreationSheet>
-            
+
             <motion.a
               href="#dashboard"
-              className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
+              className="inline-flex items-center text-blue-400 font-medium hover:text-blue-300 transition-colors group"
               whileHover={{ scale: 1.05 }}
             >
               <span>See all features in action</span>

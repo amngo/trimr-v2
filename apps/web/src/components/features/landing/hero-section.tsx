@@ -3,7 +3,6 @@
  */
 
 'use client';
-
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { ArrowRight, Link2 } from 'lucide-react';
@@ -15,12 +14,7 @@ import {
   FadeIn,
 } from '@/components/common/animated-container';
 import { Aurora } from '@/components';
-import { BaseComponentProps } from '@/types';
 import { useAuth } from '@/contexts/auth-context';
-
-interface HeroSectionProps extends BaseComponentProps {
-  onLinkCreated?: () => void;
-}
 
 const statItems = [
   { value: '1M+', label: 'Links Created' },
@@ -31,7 +25,7 @@ const statItems = [
 /**
  * Main hero section component
  */
-export function HeroSection({ onLinkCreated }: HeroSectionProps) {
+export function HeroSection() {
   const { isAuthenticated } = useAuth();
 
   return (
@@ -49,7 +43,7 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
       <div className="relative z-10">
         {/* Navigation */}
         <FadeIn delay={0.2}>
-          <nav className="flex items-center justify-between px-6 py-4 mx-12 mt-8 glass rounded-lg border">
+          <nav className="flex items-center justify-between px-6 py-4 mx-6 mt-8 glass rounded-lg border">
             <motion.div
               className="flex items-center space-x-2"
               whileHover={{ scale: 1.05 }}
@@ -60,7 +54,7 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
               <span className="text-xl font-bold">trimr</span>
             </motion.div>
 
-            <StaggerContainer className="hidden md:flex items-center space-x-4">
+            <StaggerContainer className="flex items-center space-x-4">
               {!isAuthenticated && (
                 <Link href="/login">
                   <Button variant="outline" className="hidden md:inline-flex">
@@ -72,13 +66,11 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
               {isAuthenticated && (
                 <>
                   <Link href="/dashboard">
-                    <Button className="hidden md:inline-flex">Dashboard</Button>
+                    <Button>Dashboard</Button>
                   </Link>
 
                   <Link href="/logout">
-                    <Button variant="outline" className="hidden md:inline-flex">
-                      Logout
-                    </Button>
+                    <Button variant="outline">Logout</Button>
                   </Link>
                 </>
               )}
@@ -87,8 +79,8 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
         </FadeIn>
 
         {/* Hero Content */}
-        <div className="container mx-auto px-6 md:px-8 py-20 md:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div className="container mx-auto px-6 py-20 md:py-32">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left Column - Text Content */}
             <StaggerContainer className="space-y-8">
               <SlideUp delay={0.4} className="space-y-6">
@@ -101,7 +93,7 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
                 <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
                   Shorten URLs
                   <br />
-                  <span className="bg-gradient-to-r dark:from-sky-500 dark:via-blue-500 dark:to-purple-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-sky-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
                     Beautifully
                   </span>
                 </h1>
@@ -113,26 +105,22 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
                 </p>
               </SlideUp>
 
-              <SlideUp delay={0.6} className="flex flex-col sm:flex-row gap-4">
+              <SlideUp delay={0.6}>
                 <Link href="/register">
                   <Button
-                    size="lg"
+                    size="2xl"
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                   >
                     Get Started Free
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Button>
                 </Link>
-
-                <Button variant="outline" size="lg">
-                  View Demo
-                </Button>
               </SlideUp>
 
               {/* Stats */}
               <SlideUp
                 delay={0.8}
-                className="grid grid-cols-3 gap-8 pt-8 border-t border-slate-200 dark:border-slate-700"
+                className="grid grid-cols-3 gap-8 pt-8 border-t border-slate-700"
               >
                 {statItems.map((stat) => (
                   <StatItem
@@ -145,8 +133,8 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
             </StaggerContainer>
 
             {/* Right Column - Link Form */}
-            <SlideUp delay={0.6} className="lg:pl-8">
-              <LinkForm onSuccess={onLinkCreated} />
+            <SlideUp delay={0.6}>
+              <LinkForm />
             </SlideUp>
           </div>
         </div>
@@ -161,10 +149,8 @@ export function HeroSection({ onLinkCreated }: HeroSectionProps) {
 function StatItem({ value, label }: { value: string; label: string }) {
   return (
     <div className="text-center">
-      <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-        {value}
-      </div>
-      <div className="text-sm text-slate-600 dark:text-slate-400">{label}</div>
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-sm text-muted-foreground">{label}</div>
     </div>
   );
 }
