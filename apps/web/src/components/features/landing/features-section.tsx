@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LinkCreationSheet } from '@/components';
+import { FeatureCard } from './feature-card';
+import { SectionHeader } from './section-header';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -89,24 +91,11 @@ export function FeaturesSection({
   return (
     <section id="features" className="py-20 md:py-32 bg-slate-900">
       <div className="container mx-auto px-6 md:px-8">
-        <motion.div
-          className="text-center space-y-6 mb-16"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-        >
-          <h2 className="text-4xl md:text-5xl font-bold">
-            <span className="bg-gradient-to-r from-slate-100 via-blue-200 to-purple-200 bg-clip-text text-transparent">
-              Powerful Features
-            </span>
-          </h2>
-          <p className="text-xl text-slate-300 max-w-3xl mx-auto leading-relaxed">
-            Everything you need to manage, track, and optimize your links. Built
-            with modern technology and designed for developers, marketers, and
-            teams.
-          </p>
-        </motion.div>
+        <SectionHeader
+          title="Powerful Features"
+          description="Everything you need to manage, track, and optimize your links. Built with modern technology and designed for developers, marketers, and teams."
+          className="mb-16"
+        />
 
         <motion.div
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -116,41 +105,8 @@ export function FeaturesSection({
           viewport={{ once: true }}
         >
           {features.map((feature, index) => (
-            <motion.div key={index} variants={itemVariants} className="group">
-              <motion.div
-                className="relative bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-8 border border-slate-700 h-full"
-                whileHover={{
-                  scale: 1.02,
-                  boxShadow:
-                    '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Icon */}
-                <motion.div
-                  className={`inline-flex items-center justify-center w-14 h-14 rounded-xl bg-gradient-to-r ${feature.gradient} mb-6 shadow-lg`}
-                  whileHover={{ scale: 1.1, rotate: 5 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <feature.icon className="w-7 h-7 text-white" />
-                </motion.div>
-
-                {/* Content */}
-                <div className="space-y-4">
-                  <h3 className="text-xl font-semibold text-slate-100 group-hover:text-blue-400 transition-colors">
-                    {feature.title}
-                  </h3>
-                  <p className="text-slate-300 leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
-
-                {/* Hover effect overlay */}
-                <motion.div
-                  className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-5 bg-gradient-to-br from-blue-500 to-purple-600 transition-opacity duration-300"
-                  initial={false}
-                />
-              </motion.div>
+            <motion.div key={index} variants={itemVariants}>
+              <FeatureCard {...feature} />
             </motion.div>
           ))}
         </motion.div>

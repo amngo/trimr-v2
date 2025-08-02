@@ -3,18 +3,19 @@
  */
 
 'use client';
-import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { ArrowRight, Link2 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LinkForm } from '@/components';
 import {
   StaggerContainer,
   SlideUp,
-  FadeIn,
 } from '@/components/common/animated-container';
 import { Aurora } from '@/components';
-import { useAuth } from '@/contexts/auth-context';
+import { Navigation } from './navigation';
+import { HeroBadge } from './hero-badge';
+import { HeroHeading } from './hero-heading';
+import { HeroStats } from './hero-stats';
 
 const statItems = [
   { value: '1M+', label: 'Links Created' },
@@ -26,8 +27,6 @@ const statItems = [
  * Main hero section component
  */
 export function HeroSection() {
-  const { isAuthenticated } = useAuth();
-
   return (
     <div className="relative min-h-screen overflow-hidden">
       {/* Animated background */}
@@ -42,41 +41,7 @@ export function HeroSection() {
 
       <div className="relative z-10">
         {/* Navigation */}
-        <FadeIn delay={0.2}>
-          <nav className="flex items-center justify-between px-6 py-4 mx-6 mt-8 glass rounded-lg border">
-            <motion.div
-              className="flex items-center space-x-2"
-              whileHover={{ scale: 1.05 }}
-            >
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <Link2 className="w-5 h-5 text-white" />
-              </div>
-              <span className="text-xl font-bold">trimr</span>
-            </motion.div>
-
-            <StaggerContainer className="flex items-center space-x-4">
-              {!isAuthenticated && (
-                <Link href="/login">
-                  <Button variant="outline" className="hidden md:inline-flex">
-                    Login
-                  </Button>
-                </Link>
-              )}
-
-              {isAuthenticated && (
-                <>
-                  <Link href="/dashboard">
-                    <Button>Dashboard</Button>
-                  </Link>
-
-                  <Link href="/logout">
-                    <Button variant="outline">Logout</Button>
-                  </Link>
-                </>
-              )}
-            </StaggerContainer>
-          </nav>
-        </FadeIn>
+        <Navigation />
 
         {/* Hero Content */}
         <div className="container mx-auto px-6 py-20 md:py-32">
@@ -84,25 +49,13 @@ export function HeroSection() {
             {/* Left Column - Text Content */}
             <StaggerContainer className="space-y-8">
               <SlideUp delay={0.4} className="space-y-6">
-                <div className="inline-block px-4 py-2 glass border rounded-full">
-                  <span className="text-sm font-medium">
-                    ✨ Transform Long URLs Instantly
-                  </span>
-                </div>
+                <HeroBadge>✨ Transform Long URLs Instantly</HeroBadge>
 
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
-                  Shorten URLs
-                  <br />
-                  <span className="bg-gradient-to-r from-sky-500 via-blue-500 to-purple-500 bg-clip-text text-transparent">
-                    Beautifully
-                  </span>
-                </h1>
-
-                <p className="text-xl leading-relaxed max-w-lg">
-                  Transform your long URLs into elegant, shareable links with
-                  our powerful URL shortener. Track clicks, manage links, and
-                  gain insights with our beautiful dashboard.
-                </p>
+                <HeroHeading
+                  title="Shorten URLs"
+                  subtitle="Beautifully"
+                  description="Transform your long URLs into elegant, shareable links with our powerful URL shortener. Track clicks, manage links, and gain insights with our beautiful dashboard."
+                />
               </SlideUp>
 
               <SlideUp delay={0.6}>
@@ -118,18 +71,7 @@ export function HeroSection() {
               </SlideUp>
 
               {/* Stats */}
-              <SlideUp
-                delay={0.8}
-                className="grid grid-cols-3 gap-8 pt-8 border-t border-slate-700"
-              >
-                {statItems.map((stat) => (
-                  <StatItem
-                    key={stat.label}
-                    value={stat.value}
-                    label={stat.label}
-                  />
-                ))}
-              </SlideUp>
+              <HeroStats stats={statItems} />
             </StaggerContainer>
 
             {/* Right Column - Link Form */}
@@ -143,14 +85,3 @@ export function HeroSection() {
   );
 }
 
-/**
- * Statistics item component
- */
-function StatItem({ value, label }: { value: string; label: string }) {
-  return (
-    <div className="text-center">
-      <div className="text-2xl font-bold">{value}</div>
-      <div className="text-sm text-muted-foreground">{label}</div>
-    </div>
-  );
-}
