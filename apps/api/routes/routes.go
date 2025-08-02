@@ -31,6 +31,9 @@ func SetupRoutes(r *gin.Engine) {
 		api.PATCH("/links/:id", middleware.OptionalJWTAuth(), handlers.UpdateLink)
 		api.DELETE("/links/:id", middleware.OptionalJWTAuth(), handlers.DeleteLink)
 		api.POST("/links/:slug/access", handlers.CheckLinkAccess)
+
+		// Dashboard endpoints
+		api.GET("/dashboard/stats", middleware.JWTAuth(), handlers.GetDashboardStats)
 	}
 
 	// Redirect route (at root level)

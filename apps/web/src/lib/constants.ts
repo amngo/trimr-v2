@@ -233,5 +233,8 @@ export const ROUTES = {
       DELETE: (id: string) => `/links/${id}`,
       ACCESS: (slug: string) => `/links/${slug}/access`,
     },
+    DASHBOARD: {
+      STATS: '/dashboard/stats',
+    },
   },
 } as const;

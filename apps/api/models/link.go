@@ -20,6 +20,11 @@ type Link struct {
 	UserID      *uuid.UUID `json:"userId,omitempty" db:"user_id"`
 	FaviconURL  *string    `json:"faviconUrl,omitempty" db:"favicon_url"`
 	Disabled    bool       `json:"disabled" db:"disabled"`
+	
+	// Additional fields for API responses (not stored in DB)
+	ShortURL  string `json:"shortUrl,omitempty" db:"-"`
+	IsActive  bool   `json:"isActive,omitempty" db:"-"`
+	IsExpired bool   `json:"isExpired,omitempty" db:"-"`
 }
 
 type CreateLinkRequest struct {
