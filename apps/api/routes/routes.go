@@ -34,8 +34,8 @@ func SetupRoutes(r *gin.Engine) {
 
 		// Dashboard endpoints
 		api.GET("/dashboard/stats", middleware.JWTAuth(), handlers.GetDashboardStats)
-	}
 
-	// Redirect route (at root level)
-	r.GET("/:slug", handlers.RedirectLink)
+		// Redirect route
+		api.GET("/:slug", handlers.RedirectLink)
+	}
 }
