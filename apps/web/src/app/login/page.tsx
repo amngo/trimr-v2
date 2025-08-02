@@ -135,7 +135,7 @@ export default function LoginPage() {
                     Welcome Back
                   </h1>
                   <p className="text-slate-600 dark:text-slate-300 mt-2">
-                    Sign in to your URL Shortener account
+                    Sign in to your trimr account
                   </p>
                 </div>
               </motion.div>

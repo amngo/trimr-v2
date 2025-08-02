@@ -26,7 +26,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'URL Shortener',
+  title: 'trimr',
   description: 'Create and manage short links',
 };
 

@@ -56,7 +56,6 @@ export default function DashboardPage() {
   const totalClicks = links.reduce((sum, link) => sum + link.clicks, 0);
   const activeLinks = links.filter((link) => link.clicks > 0).length;
 
-
   return (
     <div className="min-h-screen relative bg-slate-900">
       {/* Header */}
@@ -69,7 +68,7 @@ export default function DashboardPage() {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl font-bold">Dashboard</h1>
+              <h1 className="text-xl font-bold">Links</h1>
             </div>
 
             <LinkCreationSheet>
